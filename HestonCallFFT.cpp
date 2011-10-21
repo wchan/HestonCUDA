@@ -4,6 +4,7 @@
 #include <math.h>
 #include <fftw3.h>
 #include <gsl/gsl_spline.h>
+#include <iostream>
 
 
 double HestonCallFFT(
@@ -50,10 +51,12 @@ double HestonCallFFT(
     std::complex<double> zCharFunc = exp(zA + zB + zC);
     std::complex<double> zModifiedCharFunc = zCharFunc * exp(-dR * dT) / (dAlpha * dAlpha + dAlpha - vU[i] * vU[i] + zI * (2.0 + dAlpha + 1.0) * vU[i]);
 
-    std::complex<double> zSimpsonW = 1.0 / 3.0 * (3.0 + pow(zI, i));
+    std::complex<double> zSimpsonW = 1.0 / 3.0 * (3.0 + pow(-zI, i));
     
-    if (i == 1) zSimpsonW = zSimpsonW - 1.0 / 3.0;
+    if (i == 0) zSimpsonW = zSimpsonW - 1.0 / 3.0;
 
+    std::cout << vU[i] << std::endl;
+    // std::cout << zI * zB * vU[i] << " -> exp -> " << exp(zI * zB * vU[i]) << std::endl;
     zFFTFunc[i] = exp(zI * zB * vU[i]) * zModifiedCharFunc * dEta * zSimpsonW;
   }
 
