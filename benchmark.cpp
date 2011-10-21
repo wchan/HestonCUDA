@@ -11,12 +11,13 @@ void hestonTests() {
   double fft_matlab2 = 0.085020234245137;
 	
 	std::cout << "-- fft heston call --" << std::endl;
-  std::cout << "\tCPU\t\tMATLAB" << std::endl;
+  std::cout << "\tCPU\t\t\tMATLAB" << std::endl;
   std::cout << "1\t" << fft_cpu1 << "\t" << fft_matlab1 << std::endl;
   std::cout << "2\t" << fft_cpu2 << "\t" << fft_matlab2 << std::endl;
 }
 
 int main(int args, char* argv[]) {
-	hestonTests();
+	std::cout.precision(16);
+  hestonTests();
 }
 

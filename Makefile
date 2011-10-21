@@ -1,7 +1,7 @@
 CXX      = g++
 CXXFLAGS =
 LIBS     = -lfftw3 -lm -lgsl -lblas
-OBJS     = HestonCallFFT.o BlackScholes.o
+OBJS     = HestonCallFFTCPU.o BlackScholes.o
 
 all: benchmark
 

@@ -1,4 +1,4 @@
-#include "HestonCallFFT.hpp"
+#include "HestonCallFFTCPU.hpp"
 #include <complex>
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -6,8 +6,7 @@
 #include <gsl/gsl_spline.h>
 #include <iostream>
 
-
-double HestonCallFFT(
+double HestonCallFFTCPU(
   double dKappa,   // rate of reversion
   double dTheta,   // int run variance
   double dSigma,   // vol of vol
