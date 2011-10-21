@@ -71,6 +71,9 @@ double HestonCallFFT(
 
   /* wchan: replace this later w/ the appropriate BLAS vector-scalar function */
   for (int i = 0; i < lN; i++) dCallValueM[i] = dPayoff[i] / M_PI;
+  double sum = 0;
+  for (int i = 0; i < lN; i++) sum += dCallValueM[i];
+  std::cout << sum << std::endl;
 
   double dLin[lN];
   for (int i = 0; i < lN; i++) dLin[i] = 1.0 + i;
@@ -83,6 +86,8 @@ double HestonCallFFT(
 
   gsl_spline_free(spline);
   gsl_interp_accel_free(acc);
+
+  dPrice = exp(-log(dStrike) * dAlpha) * dCallValueM[(int)dPosition];
 
   return dPrice;
 }
