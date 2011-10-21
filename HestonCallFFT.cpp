@@ -10,8 +10,10 @@ double HestonCallFFT(
   double dKappa,   // rate of reversion
   double dTheta,   // int run variance
   double dSigma,   // vol of vol
-  double dV0,      // initial variance
   double dRho,     // correlation
+  	// erik: i switched these to match the
+	// function signature from the matlab file.
+  double dV0,      // initial variance
   double dR,       // instantaneous short rate
   double dT,       // time till maturity
   double dS0,      // initial asset price
