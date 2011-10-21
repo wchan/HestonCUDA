@@ -12,8 +12,6 @@ double HestonCallFFT(
   double dTheta,   // int run variance
   double dSigma,   // vol of vol
   double dRho,     // correlation
-  	// erik: i switched these to match the
-	// function signature from the matlab file.
   double dV0,      // initial variance
   double dR,       // instantaneous short rate
   double dT,       // time till maturity
@@ -46,12 +44,12 @@ double HestonCallFFT(
     std::complex<double> zPHI   = sqrt(zGamma * zGamma - 2.0 * dSigma * dSigma * zZeta);
     std::complex<double> zA     = zI * zV * (dX0 + dR * dT);
     std::complex<double> zB     = dV0 * ((2.0 * zZeta * (1.0 - exp(-zPHI * dT))) / (2.0 * zPHI - (zPHI - zGamma) * (1.0 - exp(-zPHI * dT))));
-    std::complex<double> zC     = - dKappa * dTheta / (dSigma * dSigma) * ( 2.0 * log((2.0 * zPHI - (zPHI - zGamma) * (1.0 - exp(-zPHI * dT))) / ( 2.0 * zPHI)) + (zPHI - zGamma) * dT);
+    std::complex<double> zC     = -dKappa * dTheta / (dSigma * dSigma) * ( 2.0 * log((2.0 * zPHI - (zPHI - zGamma) * (1.0 - exp(-zPHI * dT))) / ( 2.0 * zPHI)) + (zPHI - zGamma) * dT);
 
     std::complex<double> zCharFunc = exp(zA + zB + zC);
-    std::complex<double> zModifiedCharFunc = zCharFunc * exp(-dR * dT) / (dAlpha * dAlpha + dAlpha - vU[i] * vU[i] + zI * (2.0 + dAlpha + 1.0) * vU[i]);
+    std::complex<double> zModifiedCharFunc = zCharFunc * exp(-dR * dT) / (dAlpha * dAlpha + dAlpha - vU[i] * vU[i] + zI * (2.0 * dAlpha + 1.0) * vU[i]);
 
-    std::complex<double> zSimpsonW = 1.0 / 3.0 * (3.0 + pow(-zI, i));
+    std::complex<double> zSimpsonW = 1.0 / 3.0 * (3.0 + pow(-zI, i + 1));
     
     if (i == 0) zSimpsonW = zSimpsonW - 1.0 / 3.0;
 
