@@ -55,9 +55,7 @@ double HestonCallFFT(
     
     if (i == 0) zSimpsonW = zSimpsonW - 1.0 / 3.0;
 
-    std::cout << vU[i] << std::endl;
-    // std::cout << zI * zB * vU[i] << " -> exp -> " << exp(zI * zB * vU[i]) << std::endl;
-    zFFTFunc[i] = exp(zI * zB * vU[i]) * zModifiedCharFunc * dEta * zSimpsonW;
+    zFFTFunc[i] = exp(zI * dB * vU[i]) * zModifiedCharFunc * dEta * zSimpsonW;
   }
 
   fftw_complex* fftwFFTFunc = reinterpret_cast<fftw_complex*>(zFFTFunc);
