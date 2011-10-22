@@ -1,9 +1,20 @@
+#include "HestonCallQuadCPU.hpp"
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 // erik
 // bit of matlab syntax in here still--won't compile (yet)
 
-double HestonCallQuad(double kappa, double theta, double sigma,
-	double rho, double v0, double r, double T, 
-	double s0, double K) {
+double HestonCallQuadCPU(
+  double kappa,
+  double theta,
+  double sigma,
+	double rho,
+  double v0,
+  double r,
+  double T, 
+	double s0,
+  double K) {
 	
 	int N = 0; //unused in the MATLAB code... (and here)
 	
