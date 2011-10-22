@@ -1,7 +1,7 @@
 #include "HestonCallFFTCPU.hpp"
 #include <complex>
 #define _USE_MATH_DEFINES
-#include <math.h>
+#include <cmath>
 #include <fftw3.h>
 #include <gsl/gsl_spline.h>
 #include <iostream>

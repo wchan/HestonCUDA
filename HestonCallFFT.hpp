@@ -14,7 +14,7 @@ double HestonCallFFT(
   double dS0,      // initial asset price
   double dStrike,
   long   lN) {
-  return HestonCallFFTCPU(dKappa, dTheta, dSigma, dRho, dV0, dR, dT, dS0, dStrike, lN);
+  return HestonCallFFTCPU(dKappa, dTheta, dSigma, dV0, dRho, dR, dT, dS0, dStrike, lN);
 }
 
 #endif
