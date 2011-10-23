@@ -15,10 +15,12 @@ void hestonTests() {
   double fft_vol_matlab_1   = 0.222875129654834;
   double fft_vol_matlab_2   = 0.201741713389921;
 	
-	std::cout << "-- fft heston call --" << std::endl;
+
+	std::cout << "-- fft price --" << std::endl;
   std::cout << "\tCPU\t\t\tMATLAB" << std::endl;
   std::cout << "1\t" << fft_price_cpu_1 << "\t" << fft_price_matlab_1 << std::endl;
   std::cout << "2\t" << fft_price_cpu_2 << "\t" << fft_price_matlab_2 << std::endl;
+	std::cout << "-- fft vol --" << std::endl;
   std::cout << "1\t" << fft_vol_cpu_1   << "\t" << fft_vol_matlab_1 << std::endl;
   std::cout << "2\t" << fft_vol_cpu_2   << "\t" << fft_vol_matlab_2 << std::endl;
 }
