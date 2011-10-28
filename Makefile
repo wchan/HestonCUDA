@@ -14,3 +14,6 @@ benchmark: ${OBJS} benchmark.cpp
 clean:
 	rm -rf ${OBJS} benchmark
 
+memcheck: benchmark
+	valgrind --tool=memcheck --leak-check=full --show-reachable=yes \
+	   	./benchmark
