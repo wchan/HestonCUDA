@@ -10,7 +10,7 @@ double HestonCallQuadCPU(
         double dR,
         double dT, 
         double dS0,
-        int iK,
+        double dK,
         int iN);
 
 #endif

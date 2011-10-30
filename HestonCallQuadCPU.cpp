@@ -5,7 +5,6 @@
 #include <iostream>
 #define pi 3.1415926535897932384626433832795
 
-// bit of matlab syntax in here still--won't compile (yet)
 // benchmark.m takes 151 seconds for me
 
 inline std::complex<double> Hestf(
@@ -36,8 +35,8 @@ inline std::complex<double> Hestf(
     std::complex<double> d,g,C,D,f;
     //TODO: fix this stuff
     a = kappa*theta;
-    x = std::log(s0);
-    d = std::sqrt(pow(rho*sigma*phi*zI-b,2)-(sigma*sigma)*(2*u*phi*zI-(phi*phi)));
+    x = log(s0);
+    d = sqrt(pow(rho*sigma*phi*zI-b,2)-(sigma*sigma)*(2*u*phi*zI-(phi*phi)));
     g = (b-rho*sigma*phi*zI + d)/(b-rho*sigma*phi*zI - d);
     C = r*phi*zI*T + a/(sigma*sigma)*((b- rho*sigma*phi*zI + d)*T 
             - 2.0*std::log((1.0-g*std::exp(d*T))/(1.0-g)));
@@ -63,7 +62,16 @@ inline double hestonPIntegrand(
 
     std::complex<double> zI(0, 1);
 
-    return (std::exp(-zI*phi*std::log(K))
+/*
+    std::cout << "K: " << K << std::endl;
+    std::cout << "log(K): " << log(K) << std::endl;
+
+    std::cout << "1: " << exp(-zI*phi*log(K)) << std::endl;
+    std::cout << "2: " << Hestf(phi,kappa,theta,sigma,
+                           rho,v0,r,T,s0,type) << std::endl;
+    std::cout << "3: " << (zI*phi) << std::endl;
+  */
+    return (exp(-zI*phi*log(K))
             *Hestf(phi,kappa,theta,sigma,
                 rho,v0,r,T,s0,type)/(zI*phi)).real();
 
@@ -261,6 +269,7 @@ inline double quad_(
         y[i] = hestonPIntegrand(x[i], kappa, theta, 
                 sigma, rho, v0, r, T, s0, K, type);
         //Q[i] = h*y[i]*w[i];
+
         Q += y[i]*w[i];
     }
     Q *= h;
@@ -292,7 +301,6 @@ inline double HestonP(
     // HestonPIntegrand is now coded into quadl as the function
     // since it is the only function used for quadl in our code.
 
-    //TODO: fix pi; return type of quad_
     return 0.5 + 1/pi*
         quad_(0,100,N, kappa, theta,sigma,rho,v0,r,T,s0,K,type);
 }
@@ -306,13 +314,12 @@ double HestonCallQuadCPU(
         double r,
         double T, 
         double s0,
-        int K,
+        double K,
         int N) {
 
     //const int N = 0; //constant in the MATLAB code... (and here)
-
     return s0*HestonP(kappa,theta,sigma,rho,v0,r,T,s0,K,1,N) - 
-        K*std::exp(-r*T)*HestonP(kappa,theta,sigma,rho,v0,r,T,s0,K,2,N);
+        K*exp(-r*T)*HestonP(kappa,theta,sigma,rho,v0,r,T,s0,K,2,N);
 
 }
 
