@@ -33,14 +33,13 @@ inline std::complex<double> Hestf(
 
     double a,x;
     std::complex<double> d,g,C,D,f;
-    //TODO: fix this stuff
     a = kappa*theta;
     x = log(s0);
     d = sqrt(pow(rho*sigma*phi*zI-b,2)-(sigma*sigma)*(2*u*phi*zI-(phi*phi)));
     g = (b-rho*sigma*phi*zI + d)/(b-rho*sigma*phi*zI - d);
     C = r*phi*zI*T + a/(sigma*sigma)*((b- rho*sigma*phi*zI + d)*T 
-            - 2.0*std::log((1.0-g*std::exp(d*T))/(1.0-g)));
-    D = (b-rho*sigma*phi*zI + d)/(sigma*sigma)*((1.0-std::exp(d*T))/ (1.0-g*std::exp(d*T)));
+            - 2.0*log((1.0-g*exp(d*T))/(1.0-g)));
+    D = (b-rho*sigma*phi*zI + d)/(sigma*sigma)*((1.0-exp(d*T))/ (1.0-g*exp(d*T)));
 
     f = exp(C + D*v0 + zI*phi*x);
     return f;
@@ -252,7 +251,7 @@ inline double quad_(
         int k = 0;
         //TODO: check these indices 
         for (int j=p*i; j<p*(i+1); j++) {
-            x[j] = a+h*((2*i)+quad[k]);
+            x[j] = a+h*((2*i+1)+quad[k]);
             w[j] = w_[k++];
         }
 
