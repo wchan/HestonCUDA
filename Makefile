@@ -7,7 +7,7 @@ NVCC     = nvcc
 all: benchmark
 
 benchmark: ${OBJS} benchmark.cpp
-	${CXX} ${CXXFLAGS} -o benchmark benchmark.cpp ${OBJS} ${LIBS}
+	${NVCC} ${CXXFLAGS} -o benchmark benchmark.cpp ${OBJS} ${LIBS}
 
 %.o: %.cpp %.hpp
 	${CXX} ${CXXFLAGS} -c $< -o $@
