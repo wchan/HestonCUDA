@@ -6,14 +6,26 @@
 #include <gsl/gsl_spline.h>
 #include <iostream>
 
+// NVIDIA CUDA Headers
+#include <cuda.h>
+#include <cuComplex.h>
+
 // NVIDIA Thrust Headers (http://developer.nvidia.com/Thrust)
 #include <thrust/host_vector.h>
 #include <thrust/device_vector.h>
 #include <thrust/transform.h>
 
 struct HestonCallFFTGPU_functor {
+  HestonCallFFTGPU_functor(
+    double dX0,
+    double dAlpha,
+    double dEta,
+    double dB
+  ) {}
+
   __host__ __device__
-  double operator() () {
+  double operator() (int index) {
+    cuDoubleComplex zV;
     return 0;
   }
 };
@@ -33,7 +45,7 @@ double HestonCallFFTGPU(
 
   double dX0 = log(dS0);
   double dAlpha = 1.5;
-  double dC = 600;
+  // double dC = 600;
   double dEta = 0.25;
   double dB = M_PI / dEta;
 
