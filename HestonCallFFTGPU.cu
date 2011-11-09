@@ -15,22 +15,53 @@
 #include <thrust/device_vector.h>
 #include <thrust/transform.h>
 
-__host__ __device__ static __inline__ cuDoubleComplex mult(double s, cuDoubleComplex c) {
+__host__ __device__ static __inline__ cuDoubleComplex mul(double s, cuDoubleComplex c) {
   return make_cuDoubleComplex(s * c.x, s * c.y);
 }
 
+__host__ __device__ static __inline__ cuDoubleComplex sub(double s, cuDoubleComplex c) {
+  return make_cuDoubleComplex(s - c.x, c.y);
+}
+
+__host__ __device__ static __inline__ cuDoubleComplex sqrt(cuDoubleComplex c) {
+  // TODO: www.mathpropress.com/stan/bibliography/complexSquareRoot.pdf
+  return make_cuDoubleComplex(0.0, 0.0);
+}
+
 struct HestonCallFFTGPU_functor {
+  double dKappa;
+  double dTheta;
+  double dSigma;
+  double dRho;
+  double dV0;
+  double dR;
+  double dT;
+  double dS0;
+  double dStrike;
+
   double dX0;
   double dAlpha;
   double dEta;
   double dB;
 
   HestonCallFFTGPU_functor(
+    double dKappa,   // rate of reversion
+    double dTheta,   // int run variance
+    double dSigma,   // vol of vol
+    double dRho,     // correlation
+    double dV0,      // initial variance
+    double dR,       // instantaneous short rate
+    double dT,       // time till maturity
+    double dS0,      // initial asset price
+    double dStrike,
+
     double dX0,
     double dAlpha,
     double dEta,
     double dB
-  ) : dX0(dX0), dAlpha(dAlpha), dEta(dEta), dB(dB) {}
+  ) : dKappa(dKappa), dTheta(dTheta), dSigma(dSigma), dRho(dRho), dV0(dV0), dR(dR), dT(dT), dS0(dS0), dStrike(dStrike),
+  
+  dX0(dX0), dAlpha(dAlpha), dEta(dEta), dB(dB) {}
 
   __host__ __device__
   double operator() (int index) {
@@ -38,7 +69,10 @@ struct HestonCallFFTGPU_functor {
 
     double dU               = index * dEta;
     cuDoubleComplex zV      = make_cuDoubleComplex(dU, dAlpha + 1.0);
-    cuDoubleComplex zZeta   = mult(0.5, cuCadd(cuCmul(zV, zV), cuCmul(zI, zV)));
+    cuDoubleComplex zZeta   = mul(0.5, cuCadd(cuCmul(zV, zV), cuCmul(zI, zV)));
+    cuDoubleComplex zGamma  = sub(dKappa, mul(dRho * dSigma, cuCmul(zV, zI)));
+    cuDoubleComplex zPHI    = sqrt(cuCsub(cuCmul(zGamma, zGamma), mul(2.0 * dSigma * dSigma, zZeta)));
+    cuDoubleComplex zA      = mul(dX0 + dR * dT, cuCmul(zI, zV));
     return 0;
   }
 };
