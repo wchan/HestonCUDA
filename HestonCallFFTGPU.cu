@@ -15,17 +15,30 @@
 #include <thrust/device_vector.h>
 #include <thrust/transform.h>
 
+__host__ __device__ static __inline__ cuDoubleComplex mult(double s, cuDoubleComplex c) {
+  return make_cuDoubleComplex(s * c.x, s * c.y);
+}
+
 struct HestonCallFFTGPU_functor {
+  double dX0;
+  double dAlpha;
+  double dEta;
+  double dB;
+
   HestonCallFFTGPU_functor(
     double dX0,
     double dAlpha,
     double dEta,
     double dB
-  ) {}
+  ) : dX0(dX0), dAlpha(dAlpha), dEta(dEta), dB(dB) {}
 
   __host__ __device__
   double operator() (int index) {
-    cuDoubleComplex zV;
+    cuDoubleComplex zI      = make_cuDoubleComplex(0.0, 1.0);
+
+    double dU               = index * dEta;
+    cuDoubleComplex zV      = make_cuDoubleComplex(dU, dAlpha + 1.0);
+    cuDoubleComplex zZeta   = mult(0.5, cuCadd(cuCmul(zV, zV), cuCmul(zI, zV)));
     return 0;
   }
 };
