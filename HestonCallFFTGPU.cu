@@ -17,7 +17,7 @@ double HestonCallFFTGPU(
   double dS0,      // initial asset price
   double dStrike,
   long   lN) {
-  std::complex<double> zI(0, 1);
+  std::complex<double> zI(0.0, 1.0);
 
   double dX0 = log(dS0);
   double dAlpha = 1.5;
@@ -48,7 +48,7 @@ double HestonCallFFTGPU(
     std::complex<double> zCharFunc = exp(zA + zB + zC);
     std::complex<double> zModifiedCharFunc = zCharFunc * exp(-dR * dT) / (dAlpha * dAlpha + dAlpha - vU[i] * vU[i] + zI * (2.0 * dAlpha + 1.0) * vU[i]);
 
-    std::complex<double> zSimpsonW = 1.0 / 3.0 * (3.0 + pow(-zI, i + 1));
+    std::complex<double> zSimpsonW = 1.0 / 3.0 * (3.0 + pow(-zI, i + 1.0));
     
     if (i == 0) zSimpsonW = zSimpsonW - 1.0 / 3.0;
 
