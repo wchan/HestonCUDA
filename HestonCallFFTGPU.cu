@@ -6,6 +6,18 @@
 #include <gsl/gsl_spline.h>
 #include <iostream>
 
+// NVIDIA Thrust Headers (http://developer.nvidia.com/Thrust)
+#include <thrust/host_vector.h>
+#include <thrust/device_vector.h>
+#include <thrust/transform.h>
+
+struct HestonCallFFTGPU_functor {
+  __host__ __device__
+  double operator() () {
+    return 0;
+  }
+};
+
 double HestonCallFFTGPU(
   double dKappa,   // rate of reversion
   double dTheta,   // int run variance
