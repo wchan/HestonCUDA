@@ -134,7 +134,7 @@ HestonCUDAPrecision HestonCallFFTGPU(
   cudaMalloc((void**)&cufftFFTFunc, sizeof(HestonCUDAPrecisionComplex) * lN);
   cudaMalloc((void**)&cufftPayoff, sizeof(HestonCUDAPrecisionComplex) * lN);
 
-  cudaMemcpy(cufftFFTFunc, zFFTFunc, sizeof(cufftDoubleComplex) * lN, cudaMemcpyHostToDevice);
+  cudaMemcpy(cufftFFTFunc, zFFTFunc, sizeof(HestonCUDAPrecisionComplex) * lN, cudaMemcpyHostToDevice);
 
 #if defined HestonCUDAPrecisionFloat
   cufftPlan1d(&p, lN, CUFFT_C2C, 1);
