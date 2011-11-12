@@ -1,8 +1,9 @@
-CXX      = g++
-CXXFLAGS = -g
-LIBS     = -lfftw3 -lm -lgsl -lblas
-OBJS     = HestonCallFFTCPU.o HestonCallFFTGPU.o BlackScholes.o HestonCallQuadCPU.o
-NVCC     = nvcc
+CXX       = g++
+CXXFLAGS  = -g
+LIBS      = -lfftw3 -lm -lgsl -lblas
+OBJS      = HestonCallFFTCPU.o HestonCallFFTGPU.o BlackScholes.o HestonCallQuadCPU.o
+NVCC      = nvcc
+NVCCFLAGS = --gpu-architecture=compute_20
 
 all: benchmark
 
@@ -13,7 +14,7 @@ benchmark: ${OBJS} benchmark.cpp
 	${CXX} ${CXXFLAGS} -c $< -o $@
 
 %.o: %.cu %.hpp
-	${NVCC} ${CXXFLAGS} -c $< -o $@
+	${NVCC} ${NVCCFLAGS} -c $< -o $@
 
 clean:
 	rm -rf ${OBJS} benchmark
