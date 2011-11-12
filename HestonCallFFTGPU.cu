@@ -1,8 +1,8 @@
 #include "HestonCallFFTGPU.hpp"
+#include "HestonCUDA.hpp"
 #include <complex>
 #define _USE_MATH_DEFINES
 #include <cmath>
-#include <fftw3.h>
 #include <gsl/gsl_spline.h>
 #include <iostream>
 
@@ -18,43 +18,6 @@
 
 // NVIDIA CUFFT
 #include <cufft.h>
-
-__host__ __device__ static __inline__ double mag(cuDoubleComplex c) {
-  return sqrt(c.x * c.x + c.y * c.y);
-}
-
-__host__ __device__ static __inline__ double phase(cuDoubleComplex c) {
-  return atan(c.y / c.x);
-}
-
-__host__ __device__ static __inline__ cuDoubleComplex mul(double s, cuDoubleComplex c) {
-  return make_cuDoubleComplex(s * c.x, s * c.y);
-}
-
-__host__ __device__ static __inline__ cuDoubleComplex sub(double s, cuDoubleComplex c) {
-  return make_cuDoubleComplex(s - c.x, -c.y);
-}
-
-__host__ __device__ static __inline__ cuDoubleComplex add(double s, cuDoubleComplex c) {
-  return make_cuDoubleComplex(s + c.x, c.y);
-}
-
-__host__ __device__ static __inline__ cuDoubleComplex sqrt(cuDoubleComplex c) {
-  double f = sqrt(mag(c));
-  double hp = 0.5 * phase(c);
-  
-  return make_cuDoubleComplex(f * cos(hp), f * sin(hp));
-}
-
-__host__ __device__ static __inline__ cuDoubleComplex exp(cuDoubleComplex c) {
-  double f = exp(c.x);
-
-  return make_cuDoubleComplex(f * cos(c.y), f * sin(c.y));
-}
-
-__host__ __device__ static __inline__ cuDoubleComplex log(cuDoubleComplex c) {
-  return make_cuDoubleComplex(log(mag(c)), phase(c));
-}
 
 __host__ __device__ static __inline__ cuDoubleComplex simpsonWIndex(int index) {
   index &= 3;  
@@ -110,7 +73,7 @@ struct HestonCallFFTGPU_functor {
     double dU               = index * dEta;
 
     cuDoubleComplex zV      = make_cuDoubleComplex(dU, -(dAlpha + 1.0));
-    cuDoubleComplex zZeta   = mul(-0.5, cuCadd(cuCmul(zV, zV), cuCmul(zI, zV))); // TODO: opt here.
+    cuDoubleComplex zZeta   = mul(-0.5, cuCadd(cuCmul(zV, zV), cuCmul(zI, zV)));
     cuDoubleComplex zGamma  = sub(dKappa, mul(dRho * dSigma, cuCmul(zV, zI)));
     cuDoubleComplex zPHI    = sqrt(cuCsub(cuCmul(zGamma, zGamma), mul(2.0 * dSigma * dSigma, zZeta)));
     
@@ -162,15 +125,6 @@ double HestonCallFFTGPU(
   thrust::transform(dev_zFFTFuncI.begin(), dev_zFFTFuncI.end(), dev_zFFTFunc.begin(), HestonCallFFTGPU_functor(dKappa, dTheta, dSigma, dRho, dV0, dR, dT, dS0, dStrike, dX0, dAlpha, dEta, dB));
 
   thrust::copy(dev_zFFTFunc.begin(), dev_zFFTFunc.end(), (cuDoubleComplex*)zFFTFunc);
-
-  /*
-  fftw_complex* fftwFFTFunc = reinterpret_cast<fftw_complex*>(zFFTFunc);
-  fftw_complex* fftwPayoff  = reinterpret_cast<fftw_complex*>(zPayoff);
-
-  fftw_plan p = fftw_plan_dft_1d(lN, fftwFFTFunc, fftwPayoff, FFTW_FORWARD, FFTW_ESTIMATE);
-  fftw_execute(p);
-  fftw_destroy_plan(p);
-  */
 
   cufftHandle p;
   cufftDoubleComplex* cufftFFTFunc = NULL;
