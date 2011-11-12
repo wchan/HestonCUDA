@@ -1,9 +1,9 @@
 CXX       = g++
 CXXFLAGS  = -O3
-LIBS      = -lfftw3 -lm -lgsl -lblas -lcufft
+LIBS      = -lfftw3 -lm -lblas -lgsl -lcufft
 OBJS      = HestonCallFFTCPU.o HestonCallFFTGPU.o BlackScholes.o HestonCallQuadCPU.o
 NVCC      = nvcc
-NVCCFLAGS = --gpu-architecture=compute_20
+NVCCFLAGS = --gpu-architecture=compute_20 --prec-div=true --prec-sqrt=true
 
 all: benchmark
 

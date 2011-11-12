@@ -10,6 +10,19 @@ double ugaussian_pdf(double x) {
   return exp(- x * x / 2) / sqrt(2 * M_PI);
 }
 
+
+double BlackScholesCall2(
+  double dS0,
+  double dK,
+  double dR,
+  double dT,
+  double dSigma) {
+  double dF = dS0 * exp(dR * dT);
+  double d1 = log(dF / dK) / (dSigma * sqrt(dT)) + dSigma * sqrt(dT) / 2.0;
+  double d2 = log(dF / dK) / (dSigma * sqrt(dT)) - dSigma * sqrt(dT) / 2.0;
+  return exp(- dR * dT) * (dF * gsl_cdf_ugaussian_P(d1) - dK * gsl_cdf_ugaussian_P(d2));
+}
+
 double BlackScholesCall(
   double dS0,
   double dK,
@@ -30,8 +43,8 @@ double BlackScholesVega(
   double dSigma) {
   double d1 = (log(dS0 / dK) + (dR + dSigma * dSigma / 2.0) * (dT)) / (dSigma * sqrt(dT));
 
-  return dS0 * gsl_ran_ugaussian_pdf(d1) * sqrt(dT);
-  //return dS0 * ugaussian_pdf(d1) * sqrt(dT);
+  //return dS0 * gsl_ran_ugaussian_pdf(d1) * sqrt(dT);
+  return dS0 * ugaussian_pdf(d1) * sqrt(dT);
 }
 
 double BlackScholesImplied(
@@ -41,7 +54,7 @@ double BlackScholesImplied(
   double dT,
   double dCallPrice) {
   /* use newton's method... */
-  double dVol = 0.50;
+  double dVol = 1.0;
   double dVolOld;
   double dError;
   long lRounds = 0;

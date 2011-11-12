@@ -32,7 +32,7 @@ __host__ __device__ static __inline__ cuDoubleComplex mul(double s, cuDoubleComp
 }
 
 __host__ __device__ static __inline__ cuDoubleComplex sub(double s, cuDoubleComplex c) {
-  return make_cuDoubleComplex(s - c.x, c.y);
+  return make_cuDoubleComplex(s - c.x, -c.y);
 }
 
 __host__ __device__ static __inline__ cuDoubleComplex add(double s, cuDoubleComplex c) {
@@ -40,7 +40,7 @@ __host__ __device__ static __inline__ cuDoubleComplex add(double s, cuDoubleComp
 }
 
 __host__ __device__ static __inline__ cuDoubleComplex sqrt(cuDoubleComplex c) {
-  double f = mag(c);
+  double f = sqrt(mag(c));
   double hp = 0.5 * phase(c);
   
   return make_cuDoubleComplex(f * cos(hp), f * sin(hp));
@@ -113,8 +113,9 @@ struct HestonCallFFTGPU_functor {
     cuDoubleComplex zZeta   = mul(-0.5, cuCadd(cuCmul(zV, zV), cuCmul(zI, zV))); // TODO: opt here.
     cuDoubleComplex zGamma  = sub(dKappa, mul(dRho * dSigma, cuCmul(zV, zI)));
     cuDoubleComplex zPHI    = sqrt(cuCsub(cuCmul(zGamma, zGamma), mul(2.0 * dSigma * dSigma, zZeta)));
+    
     cuDoubleComplex zA      = mul(dX0 + dR * dT, cuCmul(zI, zV));
-    cuDoubleComplex zB      = mul(dV0, cuCdiv(mul(2.0, cuCmul(zZeta, sub(1, exp(mul(-dT, zPHI))))), cuCsub(mul(2.0, zPHI), cuCmul(cuCsub(zPHI, zGamma), sub(1.0, exp(mul(-dT, zPHI)))))));
+    cuDoubleComplex zB      = mul(dV0, cuCdiv(mul(2.0, cuCmul(zZeta, sub(1.0, exp(mul(-dT, zPHI))))), cuCsub(mul(2.0, zPHI), cuCmul(cuCsub(zPHI, zGamma), sub(1.0, exp(mul(-dT, zPHI)))))));
     cuDoubleComplex zC      = mul(-dKappa * dTheta / (dSigma * dSigma), cuCadd(mul(2.0, log(cuCdiv(cuCsub(mul(2.0, zPHI), cuCmul(cuCsub(zPHI, zGamma), sub(1.0, exp(mul(-dT, zPHI))))), (mul(2.0, zPHI))))), mul(dT, cuCsub(zPHI, zGamma))));
 
 
@@ -153,7 +154,7 @@ double HestonCallFFTGPU(
 
   double dLambda = 2 * dB / lN;
   double dPosition = (log(dStrike) + dB) / dLambda + 1;
-  
+
   thrust::device_vector<int> dev_zFFTFuncI(lN);
   thrust::device_vector<cuDoubleComplex> dev_zFFTFunc(lN);
   
@@ -162,13 +163,6 @@ double HestonCallFFTGPU(
 
   thrust::copy(dev_zFFTFunc.begin(), dev_zFFTFunc.end(), (cuDoubleComplex*)zFFTFunc);
 
-  fftw_complex* fftwFFTFunc = reinterpret_cast<fftw_complex*>(zFFTFunc);
-  fftw_complex* fftwPayoff  = reinterpret_cast<fftw_complex*>(zPayoff);
-
-  fftw_plan p = fftw_plan_dft_1d(lN, fftwFFTFunc, fftwPayoff, FFTW_FORWARD, FFTW_ESTIMATE);
-  fftw_execute(p);
-  fftw_destroy_plan(p);
-  
   /*
   fftw_complex* fftwFFTFunc = reinterpret_cast<fftw_complex*>(zFFTFunc);
   fftw_complex* fftwPayoff  = reinterpret_cast<fftw_complex*>(zPayoff);
@@ -177,6 +171,25 @@ double HestonCallFFTGPU(
   fftw_execute(p);
   fftw_destroy_plan(p);
   */
+
+  cufftHandle p;
+  cufftDoubleComplex* cufftFFTFunc = NULL;
+  cufftDoubleComplex* cufftPayoff  = NULL;
+
+  cudaMalloc((void**)&cufftFFTFunc, sizeof(cufftDoubleComplex) * lN);
+  cudaMalloc((void**)&cufftPayoff, sizeof(cufftDoubleComplex) * lN);
+
+  cudaMemcpy(cufftFFTFunc, zFFTFunc, sizeof(cufftDoubleComplex) * lN, cudaMemcpyHostToDevice);
+
+  cufftPlan1d(&p, lN, CUFFT_Z2Z, 1);
+  cufftExecZ2Z(p, cufftFFTFunc, cufftPayoff, CUFFT_FORWARD);
+  
+  cudaMemcpy(zPayoff, cufftPayoff, sizeof(cufftDoubleComplex) * lN, cudaMemcpyDeviceToHost);
+
+  cufftDestroy(p);
+  cudaFree(cufftFFTFunc);
+  cudaFree(cufftPayoff);
+
 
   for (int i = 0; i < lN; i++) dPayoff[i] = zPayoff[i].real();
 

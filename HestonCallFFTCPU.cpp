@@ -33,7 +33,6 @@ double HestonCallFFTCPU(
   double               dPayoff[lN];
 
   double dLambda = 2 * dB / lN;
-
   double dPosition = (log(dStrike) + dB) / dLambda + 1;
 
   for (int i = 0; i < lN; i++) {
@@ -41,6 +40,7 @@ double HestonCallFFTCPU(
     std::complex<double> zZeta  = -0.5 * (zV * zV + zI * zV);
     std::complex<double> zGamma = dKappa - dRho * dSigma * zV * zI;
     std::complex<double> zPHI   = sqrt(zGamma * zGamma - 2.0 * dSigma * dSigma * zZeta);
+
     std::complex<double> zA     = zI * zV * (dX0 + dR * dT);
     std::complex<double> zB     = dV0 * ((2.0 * zZeta * (1.0 - exp(-zPHI * dT))) / (2.0 * zPHI - (zPHI - zGamma) * (1.0 - exp(-zPHI * dT))));
     std::complex<double> zC     = -dKappa * dTheta / (dSigma * dSigma) * ( 2.0 * log((2.0 * zPHI - (zPHI - zGamma) * (1.0 - exp(-zPHI * dT))) / ( 2.0 * zPHI)) + (zPHI - zGamma) * dT);

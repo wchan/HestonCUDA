@@ -2,6 +2,7 @@
 #define __HESTONCALLFFT_HPP__
 
 #include "HestonCallFFTCPU.hpp"
+#include "HestonCallFFTGPU.hpp"
 
 double HestonCallFFT(
   double dKappa,   // rate of reversion
