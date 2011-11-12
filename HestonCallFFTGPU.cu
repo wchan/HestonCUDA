@@ -16,6 +16,9 @@
 #include <thrust/transform.h>
 #include <thrust/sequence.h>
 
+// NVIDIA CUFFT
+#include <cufft.h>
+
 __host__ __device__ static __inline__ cuDoubleComplex mul(double s, cuDoubleComplex c) {
   return make_cuDoubleComplex(s * c.x, s * c.y);
 }
@@ -160,6 +163,15 @@ double HestonCallFFTGPU(
   fftw_plan p = fftw_plan_dft_1d(lN, fftwFFTFunc, fftwPayoff, FFTW_FORWARD, FFTW_ESTIMATE);
   fftw_execute(p);
   fftw_destroy_plan(p);
+  
+  /*
+  fftw_complex* fftwFFTFunc = reinterpret_cast<fftw_complex*>(zFFTFunc);
+  fftw_complex* fftwPayoff  = reinterpret_cast<fftw_complex*>(zPayoff);
+
+  fftw_plan p = fftw_plan_dft_1d(lN, fftwFFTFunc, fftwPayoff, FFTW_FORWARD, FFTW_ESTIMATE);
+  fftw_execute(p);
+  fftw_destroy_plan(p);
+  */
 
   for (int i = 0; i < lN; i++) dPayoff[i] = zPayoff[i].real();
 
