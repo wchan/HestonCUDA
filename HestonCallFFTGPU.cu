@@ -134,8 +134,8 @@ double HestonCallFFTGPU(
   double dEta = 0.25;
   double dB = M_PI / dEta;
 
-  double vU[lN];
-  for (int i = 0; i < lN; i++) vU[i] = i * dEta;
+  // double vU[lN];
+  // for (int i = 0; i < lN; i++) vU[i] = i * dEta;
 
   std::complex<double> zFFTFunc[lN];
   std::complex<double> zPayoff[lN];
@@ -144,32 +144,15 @@ double HestonCallFFTGPU(
   double dLambda = 2 * dB / lN;
 
   double dPosition = (log(dStrike) + dB) / dLambda + 1;
-
-  for (int i = 0; i < lN; i++) {
-    std::complex<double> zV     = vU[i] - (dAlpha + 1.0) * zI;
-    std::complex<double> zZeta  = -0.5 * (zV * zV + zI * zV);
-    std::complex<double> zGamma = dKappa - dRho * dSigma * zV * zI;
-    std::complex<double> zPHI   = sqrt(zGamma * zGamma - 2.0 * dSigma * dSigma * zZeta);
-    std::complex<double> zA     = zI * zV * (dX0 + dR * dT);
-    std::complex<double> zB     = dV0 * ((2.0 * zZeta * (1.0 - exp(-zPHI * dT))) / (2.0 * zPHI - (zPHI - zGamma) * (1.0 - exp(-zPHI * dT))));
-    std::complex<double> zC     = -dKappa * dTheta / (dSigma * dSigma) * ( 2.0 * log((2.0 * zPHI - (zPHI - zGamma) * (1.0 - exp(-zPHI * dT))) / ( 2.0 * zPHI)) + (zPHI - zGamma) * dT);
-
-    std::complex<double> zCharFunc = exp(zA + zB + zC);
-    std::complex<double> zModifiedCharFunc = zCharFunc * exp(-dR * dT) / (dAlpha * dAlpha + dAlpha - vU[i] * vU[i] + zI * (2.0 * dAlpha + 1.0) * vU[i]);
-
-    std::complex<double> zSimpsonW = 1.0 / 3.0 * (3.0 + pow(-zI, i + 1.0));
-    
-    if (i == 0) zSimpsonW = zSimpsonW - 1.0 / 3.0;
-
-    zFFTFunc[i] = exp(zI * dB * vU[i]) * zModifiedCharFunc * dEta * zSimpsonW;
-  }
-  
+ 
   
   thrust::device_vector<int> dev_zFFTFuncI(lN);
   thrust::device_vector<cuDoubleComplex> dev_zFFTFunc(lN);
   
   thrust::sequence(dev_zFFTFuncI.begin(), dev_zFFTFuncI.end());
   thrust::transform(dev_zFFTFuncI.begin(), dev_zFFTFuncI.end(), dev_zFFTFunc.begin(), HestonCallFFTGPU_functor(dKappa, dTheta, dSigma, dRho, dV0, dR, dT, dS0, dStrike, dX0, dAlpha, dEta, dB));
+
+  thrust::copy(dev_zFFTFuncI.begin(), dev_zFFTFuncI.end(), zFFTFunc);
 
   fftw_complex* fftwFFTFunc = reinterpret_cast<fftw_complex*>(zFFTFunc);
   fftw_complex* fftwPayoff  = reinterpret_cast<fftw_complex*>(zPayoff);
