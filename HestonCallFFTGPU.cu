@@ -153,12 +153,12 @@ HestonCUDAPrecision HestonCallFFTGPU(
 
   for (int i = 0; i < lN; i++) dPayoff[i] = zPayoff[i].real();
 
-  HestonCUDAPrecision dCallValueM[lN];
+  double dCallValueM[lN];
 
   /* wchan: replace this later w/ the appropriate BLAS vector-scalar function */
   for (int i = 0; i < lN; i++) dCallValueM[i] = dPayoff[i] / M_PI;
 
-  HestonCUDAPrecision dLin[lN];
+  double dLin[lN];
   for (int i = 0; i < lN; i++) dLin[i] = 1.0 + i;
 
   gsl_interp_accel* acc = gsl_interp_accel_alloc();
