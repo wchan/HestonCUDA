@@ -14,6 +14,7 @@
 #include <thrust/host_vector.h>
 #include <thrust/device_vector.h>
 #include <thrust/transform.h>
+#include <thrust/sequence.h>
 
 __host__ __device__ static __inline__ cuDoubleComplex mul(double s, cuDoubleComplex c) {
   return make_cuDoubleComplex(s * c.x, s * c.y);
@@ -88,9 +89,7 @@ struct HestonCallFFTGPU_functor {
     double dAlpha,
     double dEta,
     double dB
-  ) : dKappa(dKappa), dTheta(dTheta), dSigma(dSigma), dRho(dRho), dV0(dV0), dR(dR), dT(dT), dS0(dS0), dStrike(dStrike),
-  
-  dX0(dX0), dAlpha(dAlpha), dEta(dEta), dB(dB) {}
+  ) : dKappa(dKappa), dTheta(dTheta), dSigma(dSigma), dRho(dRho), dV0(dV0), dR(dR), dT(dT), dS0(dS0), dStrike(dStrike), dX0(dX0), dAlpha(dAlpha), dEta(dEta), dB(dB) {}
 
   __host__ __device__
   cuDoubleComplex operator() (int index) {
@@ -164,6 +163,13 @@ double HestonCallFFTGPU(
 
     zFFTFunc[i] = exp(zI * dB * vU[i]) * zModifiedCharFunc * dEta * zSimpsonW;
   }
+  
+  
+  thrust::device_vector<int> dev_zFFTFuncI(lN);
+  thrust::device_vector<cuDoubleComplex> dev_zFFTFunc(lN);
+  
+  thrust::sequence(dev_zFFTFuncI.begin(), dev_zFFTFuncI.end());
+  thrust::transform(dev_zFFTFuncI.begin(), dev_zFFTFuncI.end(), dev_zFFTFunc.begin(), HestonCallFFTGPU_functor(dKappa, dTheta, dSigma, dRho, dV0, dR, dT, dS0, dStrike, dX0, dAlpha, dEta, dB));
 
   fftw_complex* fftwFFTFunc = reinterpret_cast<fftw_complex*>(zFFTFunc);
   fftw_complex* fftwPayoff  = reinterpret_cast<fftw_complex*>(zPayoff);
