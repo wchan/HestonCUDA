@@ -1,5 +1,5 @@
 CXX       = g++
-CXXFLAGS  = -g
+CXXFLAGS  = -O3
 LIBS      = -lfftw3 -lm -lgsl -lblas -lcufft
 OBJS      = HestonCallFFTCPU.o HestonCallFFTGPU.o BlackScholes.o HestonCallQuadCPU.o
 NVCC      = nvcc

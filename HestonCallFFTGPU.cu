@@ -43,7 +43,7 @@ __host__ __device__ static __inline__ cuDoubleComplex sqrt(cuDoubleComplex c) {
   double f = mag(c);
   double hp = 0.5 * phase(c);
   
-  return make_cuDoubleComplex(f * cos(hp), sin(hp));
+  return make_cuDoubleComplex(f * cos(hp), f * sin(hp));
 }
 
 __host__ __device__ static __inline__ cuDoubleComplex exp(cuDoubleComplex c) {
@@ -147,17 +147,12 @@ double HestonCallFFTGPU(
   double dEta = 0.25;
   double dB = M_PI / dEta;
 
-  // double vU[lN];
-  // for (int i = 0; i < lN; i++) vU[i] = i * dEta;
-
   std::complex<double> zFFTFunc[lN];
   std::complex<double> zPayoff[lN];
   double               dPayoff[lN];
 
   double dLambda = 2 * dB / lN;
-
   double dPosition = (log(dStrike) + dB) / dLambda + 1;
- 
   
   thrust::device_vector<int> dev_zFFTFuncI(lN);
   thrust::device_vector<cuDoubleComplex> dev_zFFTFunc(lN);
@@ -165,7 +160,7 @@ double HestonCallFFTGPU(
   thrust::sequence(dev_zFFTFuncI.begin(), dev_zFFTFuncI.end());
   thrust::transform(dev_zFFTFuncI.begin(), dev_zFFTFuncI.end(), dev_zFFTFunc.begin(), HestonCallFFTGPU_functor(dKappa, dTheta, dSigma, dRho, dV0, dR, dT, dS0, dStrike, dX0, dAlpha, dEta, dB));
 
-  thrust::copy(dev_zFFTFuncI.begin(), dev_zFFTFuncI.end(), zFFTFunc);
+  thrust::copy(dev_zFFTFunc.begin(), dev_zFFTFunc.end(), (cuDoubleComplex*)zFFTFunc);
 
   fftw_complex* fftwFFTFunc = reinterpret_cast<fftw_complex*>(zFFTFunc);
   fftw_complex* fftwPayoff  = reinterpret_cast<fftw_complex*>(zPayoff);
