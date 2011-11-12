@@ -1,6 +1,6 @@
 CXX       = g++
 CXXFLAGS  = -g
-LIBS      = -lfftw3 -lm -lgsl -lblas
+LIBS      = -lfftw3 -lm -lgsl -lblas -lcufft
 OBJS      = HestonCallFFTCPU.o HestonCallFFTGPU.o BlackScholes.o HestonCallQuadCPU.o
 NVCC      = nvcc
 NVCCFLAGS = --gpu-architecture=compute_20
