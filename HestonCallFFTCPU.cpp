@@ -18,7 +18,7 @@ HestonCUDAPrecision HestonCallFFTCPU(
   HestonCUDAPrecision dS0,      // initial asset price
   HestonCUDAPrecision dStrike,
   long   lN) {
-  std::complex<HestonCUDAPrecision> zI(0, 1);
+  std::complex<HestonCUDAPrecision> zI(0.0, 1.0);
 
   HestonCUDAPrecision dX0 = log(dS0);
   HestonCUDAPrecision dAlpha = 1.5;

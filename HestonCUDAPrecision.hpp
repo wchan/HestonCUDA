@@ -3,8 +3,8 @@
 
 #define HestonCUDAPrecisionDouble
 
-#if defined HestonCUDAPrecisionSingle
-#define HestonCUDAPrecision single
+#if defined HestonCUDAPrecisionFloat
+#define HestonCUDAPrecision float
 #define HestonCUDAPrecisionComplex cuFloatComplex
 #elif defined HestonCUDAPrecisionDouble
 #define HestonCUDAPrecision double
