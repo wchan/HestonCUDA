@@ -19,6 +19,14 @@
 // NVIDIA CUFFT
 #include <cufft.h>
 
+__host__ __device__ static __inline__ double mag(cuDoubleComplex c) {
+  return sqrt(c.x * c.x + c.y * c.y);
+}
+
+__host__ __device__ static __inline__ double phase(cuDoubleComplex c) {
+  return atan(c.y / c.x);
+}
+
 __host__ __device__ static __inline__ cuDoubleComplex mul(double s, cuDoubleComplex c) {
   return make_cuDoubleComplex(s * c.x, s * c.y);
 }
@@ -32,8 +40,10 @@ __host__ __device__ static __inline__ cuDoubleComplex add(double s, cuDoubleComp
 }
 
 __host__ __device__ static __inline__ cuDoubleComplex sqrt(cuDoubleComplex c) {
-  // TODO: www.mathpropress.com/stan/bibliography/complexSquareRoot.pdf
-  return make_cuDoubleComplex(0.0, 0.0);
+  double f = mag(c);
+  double hp = 0.5 * phase(c);
+  
+  return make_cuDoubleComplex(f * cos(hp), sin(hp));
 }
 
 __host__ __device__ static __inline__ cuDoubleComplex exp(cuDoubleComplex c) {
@@ -43,7 +53,7 @@ __host__ __device__ static __inline__ cuDoubleComplex exp(cuDoubleComplex c) {
 }
 
 __host__ __device__ static __inline__ cuDoubleComplex log(cuDoubleComplex c) {
-  return make_cuDoubleComplex(0.0, 0.0);
+  return make_cuDoubleComplex(log(mag(c)), phase(c));
 }
 
 __host__ __device__ static __inline__ cuDoubleComplex simpsonWIndex(int index) {
