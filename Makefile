@@ -3,7 +3,7 @@ CXXFLAGS  = -O3
 LIBS      = -lfftw3 -lm -lblas -lgsl -lcufft
 OBJS      = HestonCallFFTCPU.o HestonCallFFTGPU.o BlackScholes.o HestonCallQuadCPU.o
 NVCC      = nvcc
-NVCCFLAGS = --gpu-architecture=compute_20 --prec-div=true --prec-sqrt=true
+NVCCFLAGS = --gpu-architecture=compute_20 --use_fast_math
 
 all: benchmark
 
