@@ -23,8 +23,37 @@ __host__ __device__ static __inline__ cuDoubleComplex sub(double s, cuDoubleComp
   return make_cuDoubleComplex(s - c.x, c.y);
 }
 
+__host__ __device__ static __inline__ cuDoubleComplex add(double s, cuDoubleComplex c) {
+  return make_cuDoubleComplex(s + c.x, c.y);
+}
+
 __host__ __device__ static __inline__ cuDoubleComplex sqrt(cuDoubleComplex c) {
   // TODO: www.mathpropress.com/stan/bibliography/complexSquareRoot.pdf
+  return make_cuDoubleComplex(0.0, 0.0);
+}
+
+__host__ __device__ static __inline__ cuDoubleComplex exp(cuDoubleComplex c) {
+  double f = exp(c.x);
+
+  return make_cuDoubleComplex(f * cos(c.y), f * sin(c.y));
+}
+
+__host__ __device__ static __inline__ cuDoubleComplex log(cuDoubleComplex c) {
+  return make_cuDoubleComplex(0.0, 0.0);
+}
+
+__host__ __device__ static __inline__ cuDoubleComplex simpsonWIndex(int index) {
+  index &= 3;  
+  switch (index) {
+    case 0:
+      return make_cuDoubleComplex(0.0, -1.0);
+    case 1:
+      return make_cuDoubleComplex(-1.0, 0.0);
+    case 2:
+      return make_cuDoubleComplex(0.0, 1.0);
+    case 3:
+      return make_cuDoubleComplex(1.0, 0.0);
+  }
   return make_cuDoubleComplex(0.0, 0.0);
 }
 
@@ -64,7 +93,7 @@ struct HestonCallFFTGPU_functor {
   dX0(dX0), dAlpha(dAlpha), dEta(dEta), dB(dB) {}
 
   __host__ __device__
-  double operator() (int index) {
+  cuDoubleComplex operator() (int index) {
     cuDoubleComplex zI      = make_cuDoubleComplex(0.0, 1.0);
 
     double dU               = index * dEta;
@@ -73,7 +102,17 @@ struct HestonCallFFTGPU_functor {
     cuDoubleComplex zGamma  = sub(dKappa, mul(dRho * dSigma, cuCmul(zV, zI)));
     cuDoubleComplex zPHI    = sqrt(cuCsub(cuCmul(zGamma, zGamma), mul(2.0 * dSigma * dSigma, zZeta)));
     cuDoubleComplex zA      = mul(dX0 + dR * dT, cuCmul(zI, zV));
-    return 0;
+    cuDoubleComplex zB      = mul(dV0, cuCdiv(mul(2.0, cuCmul(zZeta, sub(1, exp(mul(-dT, zPHI))))), cuCsub(mul(2.0, zPHI), cuCmul(cuCsub(zPHI, zGamma), sub(1.0, exp(mul(-dT, zPHI)))))));
+    cuDoubleComplex zC      = mul(-dKappa * dTheta / (dSigma * dSigma), cuCadd(mul(2.0, log(cuCdiv(cuCsub(mul(2.0, zPHI), cuCmul(cuCsub(zPHI, zGamma), sub(1.0, exp(mul(-dT, zPHI))))), (mul(2.0, zPHI))))), mul(dT, cuCsub(zPHI, zGamma))));
+
+
+    cuDoubleComplex zCharFunc = exp(cuCadd(cuCadd(zA, zB), zC));
+    cuDoubleComplex zModifiedCharFunc = cuCdiv(mul(exp(-dR * dT), zCharFunc), add(dAlpha * dAlpha + dAlpha - dU * dU, make_cuDoubleComplex(0.0, dU * (2.0 * dAlpha + 1.0))));
+
+    cuDoubleComplex zSimpsonW = mul(1.0 / 3.0, add(3.0, simpsonWIndex(index)));
+    if (index == 0) zSimpsonW.x -= 1.0 / 3.0;
+
+    return mul(dEta, cuCmul(cuCmul(exp(make_cuDoubleComplex(0.0, dB * dU)), zModifiedCharFunc), zSimpsonW));
   }
 };
 
