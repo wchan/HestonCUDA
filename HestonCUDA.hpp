@@ -1,8 +1,25 @@
 #ifndef __HESTON_CUDA__
 #define __HESTON_CUDA__
 
+#include "HestonCallFFTCPU.hpp"
+#include "HestonCallFFTGPU.hpp"
+
 #include <cuComplex.h>
 
+
+double HestonCallFFT(
+  double dKappa,   // rate of reversion
+  double dTheta,   // int run variance
+  double dSigma,   // vol of vol
+  double dV0,      // initial variance
+  double dRho,     // correlation
+  double dR,       // instantaneous short rate
+  double dT,       // time till maturity
+  double dS0,      // initial asset price
+  double dStrike,
+  long   lN) {
+  return HestonCallFFTCPU(dKappa, dTheta, dSigma, dV0, dRho, dR, dT, dS0, dStrike, lN);
+}
 
 __host__ __device__ static __inline__ double mag(cuDoubleComplex c) {
   return sqrt(c.x * c.x + c.y * c.y);
