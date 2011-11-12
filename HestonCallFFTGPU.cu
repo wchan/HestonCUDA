@@ -107,10 +107,10 @@ struct HestonCallFFTGPU_functor {
   __host__ __device__
   cuDoubleComplex operator() (int index) {
     cuDoubleComplex zI      = make_cuDoubleComplex(0.0, 1.0);
-
     double dU               = index * dEta;
-    cuDoubleComplex zV      = make_cuDoubleComplex(dU, dAlpha + 1.0);
-    cuDoubleComplex zZeta   = mul(0.5, cuCadd(cuCmul(zV, zV), cuCmul(zI, zV)));
+
+    cuDoubleComplex zV      = make_cuDoubleComplex(dU, -(dAlpha + 1.0));
+    cuDoubleComplex zZeta   = mul(-0.5, cuCadd(cuCmul(zV, zV), cuCmul(zI, zV))); // TODO: opt here.
     cuDoubleComplex zGamma  = sub(dKappa, mul(dRho * dSigma, cuCmul(zV, zI)));
     cuDoubleComplex zPHI    = sqrt(cuCsub(cuCmul(zGamma, zGamma), mul(2.0 * dSigma * dSigma, zZeta)));
     cuDoubleComplex zA      = mul(dX0 + dR * dT, cuCmul(zI, zV));
