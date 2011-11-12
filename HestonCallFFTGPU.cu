@@ -156,7 +156,7 @@ HestonCUDAPrecision HestonCallFFTGPU(
   double dCallValueM[lN];
 
   /* wchan: replace this later w/ the appropriate BLAS vector-scalar function */
-  for (int i = 0; i < lN; i++) dCallValueM[i] = dPayoff[i] / M_PI;
+  for (int i = 0; i < lN; i++) dCallValueM[i] = static_cast<double>(dPayoff[i]) / M_PI;
 
   double dLin[lN];
   for (int i = 0; i < lN; i++) dLin[i] = 1.0 + i;

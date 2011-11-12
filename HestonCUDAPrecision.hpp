@@ -1,7 +1,7 @@
 #ifndef __HESTONCUDAPRECISION_HPP__
 #define __HESTONCUDAPRECISION_HPP__
 
-#define HestonCUDAPrecisionDouble
+#define HestonCUDAPrecisionFloat
 
 #if defined HestonCUDAPrecisionFloat
 #define HestonCUDAPrecision float
