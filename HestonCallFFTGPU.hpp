@@ -1,17 +1,43 @@
 #ifndef __HESTONCALLFFTGPU_HPP__
 #define __HESTONCALLFFTGPU_HPP__
 
-double HestonCallFFTGPU(
-  double dKappa,   // rate of reversion
-  double dTheta,   // int run variance
-  double dSigma,   // vol of vol
-  double dV0,      // initial variance
-  double dRho,     // correlation
-  double dR,       // instantaneous short rate
-  double dT,       // time till maturity
-  double dS0,      // initial asset price
-  double dStrike,
+#include "HestonCUDA.hpp"
+#include <iostream>
+
+
+HestonCUDAPrecision HestonCallFFTGPU(
+  HestonCUDAPrecision dKappa,   // rate of reversion
+  HestonCUDAPrecision dTheta,   // int run variance
+  HestonCUDAPrecision dSigma,   // vol of vol
+  HestonCUDAPrecision dV0,      // initial variance
+  HestonCUDAPrecision dRho,     // correlation
+  HestonCUDAPrecision dR,       // instantaneous short rate
+  HestonCUDAPrecision dT,       // time till maturity
+  HestonCUDAPrecision dS0,      // initial asset price
+  HestonCUDAPrecision dStrike,
   long   lN);
+
+__inline__ HestonCUDAPrecision HestonCallFFTGPUBenchmark(
+  HestonCUDAPrecision dKappa,   // rate of reversion
+  HestonCUDAPrecision dTheta,   // int run variance
+  HestonCUDAPrecision dSigma,   // vol of vol
+  HestonCUDAPrecision dV0,      // initial variance
+  HestonCUDAPrecision dRho,     // correlation
+  HestonCUDAPrecision dR,       // instantaneous short rate
+  HestonCUDAPrecision dT,       // time till maturity
+  HestonCUDAPrecision dS0,      // initial asset price
+  HestonCUDAPrecision dStrike,
+  long   lN) {
+  HestonCUDAPrecision result = HestonCallFFTGPU(dKappa, dTheta, dSigma, dV0, dRho, dR, dT, dS0, dStrike, lN);
+
+  clock_t start = clock();
+  for (int i = BENCHMARK_RUNS - 1; i >= 0; i--) HestonCallFFTGPU(dKappa, dTheta, dSigma, dV0, dRho, dR, dT, dS0, dStrike, lN);
+  clock_t end   = clock();
+
+  std::cout << "GPU Runtime (" << BENCHMARK_RUNS << "): " << (HestonCUDAPrecision)(end - start) / CLOCKS_PER_SEC << "s" << std::endl;
+
+  return result;
+}
 
 #endif
 

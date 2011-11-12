@@ -1,5 +1,6 @@
 #include <iostream>
 #include "BlackScholes.hpp"
+#include "HestonCUDA.hpp"
 #include "HestonCallFFTCPU.hpp"
 #include "HestonCallFFTGPU.hpp"
 #include "HestonCallQuadCPU.hpp"
@@ -8,10 +9,10 @@
 void hestonTests() {
     double tol = 1e-6;
 
-    double fft_price_cpu_1 = HestonCallFFTCPU(2,0.04,0.1,0.5,0.04,0.01,0.3,1.0,0.8,4096);
-    double fft_price_cpu_2 = HestonCallFFTCPU(2,0.04,0.1,0.5,0.04,0.01,1.0,1.0,1.0,4096);
-    double fft_price_gpu_1 = HestonCallFFTGPU(2,0.04,0.1,0.5,0.04,0.01,0.3,1.0,0.8,4096);
-    double fft_price_gpu_2 = HestonCallFFTGPU(2,0.04,0.1,0.5,0.04,0.01,1.0,1.0,1.0,4096);
+    double fft_price_cpu_1 = HestonCallFFTCPUBenchmark(2,0.04,0.1,0.5,0.04,0.01,0.3,1.0,0.8,4096);
+    double fft_price_cpu_2 = HestonCallFFTCPUBenchmark(2,0.04,0.1,0.5,0.04,0.01,1.0,1.0,1.0,4096);
+    double fft_price_gpu_1 = HestonCallFFTGPUBenchmark(2,0.04,0.1,0.5,0.04,0.01,0.3,1.0,0.8,4096);
+    double fft_price_gpu_2 = HestonCallFFTGPUBenchmark(2,0.04,0.1,0.5,0.04,0.01,1.0,1.0,1.0,4096);
     double fft_vol_cpu_1   = BlackScholesImplied(1.0, 0.8, 0.01, 0.3, fft_price_cpu_1);
     double fft_vol_cpu_2   = BlackScholesImplied(1.0, 1.0, 0.01, 1.0, fft_price_cpu_2);
     double fft_price_matlab_1 = 0.203756595588233;

@@ -7,7 +7,7 @@ NVCCFLAGS = --gpu-architecture=compute_20 --use_fast_math
 
 all: benchmark
 
-benchmark: ${OBJS} benchmark.cpp
+benchmark: ${OBJS} benchmark.cpp HestonCUDA.hpp
 	${NVCC} ${CXXFLAGS} -o benchmark benchmark.cpp ${OBJS} ${LIBS}
 
 %.o: %.cpp %.hpp

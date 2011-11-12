@@ -35,42 +35,42 @@ __host__ __device__ static __inline__ cuDoubleComplex simpsonWIndex(int index) {
 }
 
 struct HestonCallFFTGPU_functor {
-  double dKappa;
-  double dTheta;
-  double dSigma;
-  double dRho;
-  double dV0;
-  double dR;
-  double dT;
-  double dS0;
-  double dStrike;
+  HestonCUDAPrecision dKappa;
+  HestonCUDAPrecision dTheta;
+  HestonCUDAPrecision dSigma;
+  HestonCUDAPrecision dRho;
+  HestonCUDAPrecision dV0;
+  HestonCUDAPrecision dR;
+  HestonCUDAPrecision dT;
+  HestonCUDAPrecision dS0;
+  HestonCUDAPrecision dStrike;
 
-  double dX0;
-  double dAlpha;
-  double dEta;
-  double dB;
+  HestonCUDAPrecision dX0;
+  HestonCUDAPrecision dAlpha;
+  HestonCUDAPrecision dEta;
+  HestonCUDAPrecision dB;
 
   HestonCallFFTGPU_functor(
-    double dKappa,   // rate of reversion
-    double dTheta,   // int run variance
-    double dSigma,   // vol of vol
-    double dRho,     // correlation
-    double dV0,      // initial variance
-    double dR,       // instantaneous short rate
-    double dT,       // time till maturity
-    double dS0,      // initial asset price
-    double dStrike,
+    HestonCUDAPrecision dKappa,   // rate of reversion
+    HestonCUDAPrecision dTheta,   // int run variance
+    HestonCUDAPrecision dSigma,   // vol of vol
+    HestonCUDAPrecision dRho,     // correlation
+    HestonCUDAPrecision dV0,      // initial variance
+    HestonCUDAPrecision dR,       // instantaneous short rate
+    HestonCUDAPrecision dT,       // time till maturity
+    HestonCUDAPrecision dS0,      // initial asset price
+    HestonCUDAPrecision dStrike,
 
-    double dX0,
-    double dAlpha,
-    double dEta,
-    double dB
+    HestonCUDAPrecision dX0,
+    HestonCUDAPrecision dAlpha,
+    HestonCUDAPrecision dEta,
+    HestonCUDAPrecision dB
   ) : dKappa(dKappa), dTheta(dTheta), dSigma(dSigma), dRho(dRho), dV0(dV0), dR(dR), dT(dT), dS0(dS0), dStrike(dStrike), dX0(dX0), dAlpha(dAlpha), dEta(dEta), dB(dB) {}
 
   __host__ __device__
   cuDoubleComplex operator() (int index) {
     cuDoubleComplex zI      = make_cuDoubleComplex(0.0, 1.0);
-    double dU               = index * dEta;
+    HestonCUDAPrecision dU               = index * dEta;
 
     cuDoubleComplex zV      = make_cuDoubleComplex(dU, -(dAlpha + 1.0));
     cuDoubleComplex zZeta   = mul(-0.5, cuCadd(cuCmul(zV, zV), cuCmul(zI, zV)));
@@ -92,34 +92,34 @@ struct HestonCallFFTGPU_functor {
   }
 };
 
-double HestonCallFFTGPU(
-  double dKappa,   // rate of reversion
-  double dTheta,   // int run variance
-  double dSigma,   // vol of vol
-  double dRho,     // correlation
-  double dV0,      // initial variance
-  double dR,       // instantaneous short rate
-  double dT,       // time till maturity
-  double dS0,      // initial asset price
-  double dStrike,
+HestonCUDAPrecision HestonCallFFTGPU(
+  HestonCUDAPrecision dKappa,   // rate of reversion
+  HestonCUDAPrecision dTheta,   // int run variance
+  HestonCUDAPrecision dSigma,   // vol of vol
+  HestonCUDAPrecision dRho,     // correlation
+  HestonCUDAPrecision dV0,      // initial variance
+  HestonCUDAPrecision dR,       // instantaneous short rate
+  HestonCUDAPrecision dT,       // time till maturity
+  HestonCUDAPrecision dS0,      // initial asset price
+  HestonCUDAPrecision dStrike,
   long   lN) {
-  std::complex<double> zI(0.0, 1.0);
+  std::complex<HestonCUDAPrecision> zI(0.0, 1.0);
 
-  double dX0 = log(dS0);
-  double dAlpha = 1.5;
-  // double dC = 600;
-  double dEta = 0.25;
-  double dB = M_PI / dEta;
+  HestonCUDAPrecision dX0 = log(dS0);
+  HestonCUDAPrecision dAlpha = 1.5;
+  // HestonCUDAPrecision dC = 600;
+  HestonCUDAPrecision dEta = 0.25;
+  HestonCUDAPrecision dB = M_PI / dEta;
 
-  std::complex<double> zFFTFunc[lN];
-  std::complex<double> zPayoff[lN];
-  double               dPayoff[lN];
+  std::complex<HestonCUDAPrecision> zFFTFunc[lN];
+  std::complex<HestonCUDAPrecision> zPayoff[lN];
+  HestonCUDAPrecision               dPayoff[lN];
 
-  double dLambda = 2 * dB / lN;
-  double dPosition = (log(dStrike) + dB) / dLambda + 1;
+  HestonCUDAPrecision dLambda = 2 * dB / lN;
+  HestonCUDAPrecision dPosition = (log(dStrike) + dB) / dLambda + 1;
 
   thrust::device_vector<int> dev_zFFTFuncI(lN);
-  thrust::device_vector<cuDoubleComplex> dev_zFFTFunc(lN);
+  thrust::device_vector<HestonCUDAPrecisionComplex> dev_zFFTFunc(lN);
   
   thrust::sequence(dev_zFFTFuncI.begin(), dev_zFFTFuncI.end());
   thrust::transform(dev_zFFTFuncI.begin(), dev_zFFTFuncI.end(), dev_zFFTFunc.begin(), HestonCallFFTGPU_functor(dKappa, dTheta, dSigma, dRho, dV0, dR, dT, dS0, dStrike, dX0, dAlpha, dEta, dB));
@@ -127,18 +127,28 @@ double HestonCallFFTGPU(
   thrust::copy(dev_zFFTFunc.begin(), dev_zFFTFunc.end(), (cuDoubleComplex*)zFFTFunc);
 
   cufftHandle p;
+#if defined HestonCUDAPrecisionSingle
+  cufftSingleComplex* cufftFFTFunc = NULL;
+  cufftSingleComplex* cufftPayoff  = NULL;
+#elif defined HestonCUDAPrecisionDouble
   cufftDoubleComplex* cufftFFTFunc = NULL;
   cufftDoubleComplex* cufftPayoff  = NULL;
+#endif
 
-  cudaMalloc((void**)&cufftFFTFunc, sizeof(cufftDoubleComplex) * lN);
-  cudaMalloc((void**)&cufftPayoff, sizeof(cufftDoubleComplex) * lN);
+  cudaMalloc((void**)&cufftFFTFunc, sizeof(HestonCUDAPrecisionComplex) * lN);
+  cudaMalloc((void**)&cufftPayoff, sizeof(HestonCUDAPrecisionComplex) * lN);
 
   cudaMemcpy(cufftFFTFunc, zFFTFunc, sizeof(cufftDoubleComplex) * lN, cudaMemcpyHostToDevice);
 
+#if defined HestonCUDAPrecisionSingle
+  cufftPlan1d(&p, lN, CUFFT_C2C, 1);
+  cufftExecC2C(p, cufftFFTFunc, cufftPayoff, CUFFT_FORWARD);
+#elif defined HestonCUDAPrecisionDouble
   cufftPlan1d(&p, lN, CUFFT_Z2Z, 1);
   cufftExecZ2Z(p, cufftFFTFunc, cufftPayoff, CUFFT_FORWARD);
-  
-  cudaMemcpy(zPayoff, cufftPayoff, sizeof(cufftDoubleComplex) * lN, cudaMemcpyDeviceToHost);
+#endif
+
+  cudaMemcpy(zPayoff, cufftPayoff, sizeof(HestonCUDAPrecisionComplex) * lN, cudaMemcpyDeviceToHost);
 
   cufftDestroy(p);
   cudaFree(cufftFFTFunc);
@@ -147,19 +157,19 @@ double HestonCallFFTGPU(
 
   for (int i = 0; i < lN; i++) dPayoff[i] = zPayoff[i].real();
 
-  double dCallValueM[lN];
+  HestonCUDAPrecision dCallValueM[lN];
 
   /* wchan: replace this later w/ the appropriate BLAS vector-scalar function */
   for (int i = 0; i < lN; i++) dCallValueM[i] = dPayoff[i] / M_PI;
 
-  double dLin[lN];
+  HestonCUDAPrecision dLin[lN];
   for (int i = 0; i < lN; i++) dLin[i] = 1.0 + i;
 
   gsl_interp_accel* acc = gsl_interp_accel_alloc();
   gsl_spline* spline = gsl_spline_alloc(gsl_interp_cspline, lN);
   gsl_spline_init(spline, dLin, dCallValueM, lN);
 
-  double dPrice = exp(-log(dStrike) * dAlpha) * gsl_spline_eval(spline, dPosition, acc);
+  HestonCUDAPrecision dPrice = exp(-log(dStrike) * dAlpha) * gsl_spline_eval(spline, dPosition, acc);
 
   gsl_spline_free(spline);
   gsl_interp_accel_free(acc);
