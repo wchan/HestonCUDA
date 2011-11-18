@@ -5,6 +5,7 @@
 #include "HestonCallFFTCPU.hpp"
 #include "HestonCallFFTGPU.hpp"
 #include "HestonCallQuadCPU.hpp"
+#include "HestonCallQuadGPU.hpp"
 
 
 void hestonTests() {
@@ -41,9 +42,12 @@ void hestonTests() {
     double quad_vol_matlab_1 = 0.189204924511565;
     double quad_vol_matlab_2 = 0.191296007291189;
     
-    std::cout << "-- quad price --" << std::endl;
-    std::cout << "1\t" << quad_price_cpu_1 << "\t" << quad_price_matlab_1 << std::endl;
-    std::cout << "2\t" << quad_price_cpu_2 << "\t" << quad_price_matlab_2 << std::endl;
+    HestonCUDAPrecision quad_price_gpu_1 = HestonCallQuadGPU(2,.04,.1,0.5,.04,.01,.3,1,.8,4096);
+    HestonCUDAPrecision quad_price_gpu_2 = HestonCallQuadGPU(2,.04,.1,0.5,.04,.01,.3,1,.84,4096);
+    
+	std::cout << "-- quad price --" << std::endl;
+    std::cout << "1\t" << quad_price_cpu_1 << "\t" << quad_price_matlab_1 << "\t" << quad_price_gpu_1 << std::endl;
+    std::cout << "2\t" << quad_price_cpu_2 << "\t" << quad_price_matlab_2 << "\t" << quad_price_gpu_2 << std::endl;
     std::cout << "-- quad vol --" << std::endl;
     std::cout << "1\t" << quad_vol_cpu_1 << "\t" << quad_vol_matlab_1 << std::endl;
     std::cout << "2\t" << quad_vol_cpu_2 << "\t" << quad_vol_matlab_2 << std::endl;
