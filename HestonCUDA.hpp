@@ -5,23 +5,6 @@
 #include <cuda.h>
 #include <cuComplex.h>
 
-
-/*
-__inline__ HestonCUDAPrecision HestonCallFFT(
-  HestonCUDAPrecision dKappa,   // rate of reversion
-  HestonCUDAPrecision dTheta,   // int run variance
-  HestonCUDAPrecision dSigma,   // vol of vol
-  HestonCUDAPrecision dV0,      // initial variance
-  HestonCUDAPrecision dRho,     // correlation
-  HestonCUDAPrecision dR,       // instantaneous short rate
-  HestonCUDAPrecision dT,       // time till maturity
-  HestonCUDAPrecision dS0,      // initial asset price
-  HestonCUDAPrecision dStrike,
-  long   lN) {
-  return HestonCallFFTCPU(dKappa, dTheta, dSigma, dV0, dRho, dR, dT, dS0, dStrike, lN);
-}
-*/
-
 #ifdef __CUDACC__
 
 __host__ __device__ static __inline__ HestonCUDAPrecisionComplex add(HestonCUDAPrecisionComplex x, HestonCUDAPrecisionComplex y) {
@@ -84,6 +67,86 @@ __host__ __device__ static __inline__ HestonCUDAPrecisionComplex add(HestonCUDAP
   return make_complex(s + c.x, c.y);
 }
 
+// with parameter types flipped
+__host__ __device__ static __inline__ HestonCUDAPrecisionComplex mul(HestonCUDAPrecisionComplex s, HestonCUDAPrecision c) {
+  return mul(c,s);
+}
+
+__host__ __device__ static __inline__ HestonCUDAPrecisionComplex sub(HestonCUDAPrecisionComplex s, HestonCUDAPrecision c) {
+  return sub(c,s);
+}
+
+__host__ __device__ static __inline__ HestonCUDAPrecisionComplex add(HestonCUDAPrecisionComplex s, HestonCUDAPrecision c) {
+  return add(c,s);
+}
+
+// operator overloading... probably a cleaner way to do this w/ templates
+__host__ __device__ static __inline__ const
+HestonCUDAPrecisionComplex operator+(const HestonCUDAPrecision& lhs, const HestonCUDAPrecisionComplex& rhs) {
+	return add(lhs,rhs);
+}
+
+__host__ __device__ static __inline__ const
+HestonCUDAPrecisionComplex operator+(const HestonCUDAPrecisionComplex& lhs, const HestonCUDAPrecision& rhs) {
+	return add(lhs,rhs);
+}
+
+__host__ __device__ static __inline__ const
+HestonCUDAPrecisionComplex operator+(const HestonCUDAPrecisionComplex& lhs, const HestonCUDAPrecisionComplex& rhs) {
+	return add(lhs,rhs);
+}
+
+__host__ __device__ static __inline__ const
+HestonCUDAPrecisionComplex operator-(const HestonCUDAPrecision& lhs, const HestonCUDAPrecisionComplex& rhs) {
+	return sub(lhs,rhs);
+}
+
+__host__ __device__ static __inline__ const
+HestonCUDAPrecisionComplex operator-(const HestonCUDAPrecisionComplex& lhs, const HestonCUDAPrecision& rhs) {
+	return sub(lhs,rhs);
+}
+
+__host__ __device__ static __inline__ const
+HestonCUDAPrecisionComplex operator-(const HestonCUDAPrecisionComplex& lhs, const HestonCUDAPrecisionComplex& rhs) {
+	return sub(lhs,rhs);
+}
+
+__host__ __device__ static __inline__ const
+HestonCUDAPrecisionComplex operator-(const HestonCUDAPrecisionComplex& lhs) {
+	return make_complex(-lhs.x,-lhs.y);
+}
+
+__host__ __device__ static __inline__ const
+HestonCUDAPrecisionComplex operator*(const HestonCUDAPrecision& lhs, const HestonCUDAPrecisionComplex& rhs) {
+	return mul(lhs,rhs);
+}
+
+__host__ __device__ static __inline__ const
+HestonCUDAPrecisionComplex operator*(const HestonCUDAPrecisionComplex& lhs, const HestonCUDAPrecision& rhs) {
+	return mul(lhs,rhs);
+}
+
+__host__ __device__ static __inline__ const
+HestonCUDAPrecisionComplex operator*(const HestonCUDAPrecisionComplex& lhs, const HestonCUDAPrecisionComplex& rhs) {
+	return mul(lhs,rhs);
+}
+
+__host__ __device__ static __inline__ const
+HestonCUDAPrecisionComplex operator/(const HestonCUDAPrecision& lhs, const HestonCUDAPrecisionComplex& rhs) {
+	return div(make_complex(lhs,0),rhs);
+}
+
+__host__ __device__ static __inline__ const
+HestonCUDAPrecisionComplex operator/(const HestonCUDAPrecisionComplex& lhs, const HestonCUDAPrecision& rhs) {
+	return div(lhs,make_complex(rhs,0));
+}
+
+__host__ __device__ static __inline__ const
+HestonCUDAPrecisionComplex operator/(const HestonCUDAPrecisionComplex& lhs, const HestonCUDAPrecisionComplex& rhs) {
+	return div(lhs,rhs);
+}
+// end operator overloading
+
 __host__ __device__ static __inline__ HestonCUDAPrecisionComplex sqrt(HestonCUDAPrecisionComplex c) {
   HestonCUDAPrecision f = sqrt(mag(c));
   HestonCUDAPrecision hp = 0.5 * phase(c);
@@ -99,6 +162,10 @@ __host__ __device__ static __inline__ HestonCUDAPrecisionComplex exp(HestonCUDAP
 
 __host__ __device__ static __inline__ HestonCUDAPrecisionComplex log(HestonCUDAPrecisionComplex c) {
   return make_complex(log(mag(c)), phase(c));
+}
+
+__host__ __device__ static __inline__ HestonCUDAPrecisionComplex pow(HestonCUDAPrecisionComplex c, int exponent) {
+  return exp(mul(exponent,log(c)));
 }
 
 #endif

@@ -4,18 +4,19 @@
 #include <cmath>
 #include <iostream>
 #define pi 3.1415926535897932384626433832795
-
+//include "HestonCUDAPrecision"
+//TODO: refactor double to HestonCUDAPrecision
 // benchmark.m takes 151 seconds for me
 
 inline std::complex<double> Hestf(
-        double phi, 
-        double kappa, 
-        double theta, 
+        double phi,
+        double kappa,
+        double theta,
         double sigma,
-        double rho, 
-        double v0, 
-        double r, 
-        double T, 
+        double rho,
+        double v0,
+        double r,
+        double T,
         double s0,
         int type) {
 
@@ -47,7 +48,7 @@ inline std::complex<double> Hestf(
 
 
 inline double hestonPIntegrand(
-        double phi, 
+        double phi,
         double kappa,
         double theta,
         double sigma,
@@ -61,15 +62,6 @@ inline double hestonPIntegrand(
 
     std::complex<double> zI(0, 1);
 
-/*
-    std::cout << "K: " << K << std::endl;
-    std::cout << "log(K): " << log(K) << std::endl;
-
-    std::cout << "1: " << exp(-zI*phi*log(K)) << std::endl;
-    std::cout << "2: " << Hestf(phi,kappa,theta,sigma,
-                           rho,v0,r,T,s0,type) << std::endl;
-    std::cout << "3: " << (zI*phi) << std::endl;
-  */
     return (exp(-zI*phi*log(K))
             *Hestf(phi,kappa,theta,sigma,
                 rho,v0,r,T,s0,type)/(zI*phi)).real();
@@ -78,7 +70,7 @@ inline double hestonPIntegrand(
 
 inline void legendre(
         int ind, 
-        double* quad_1d_point, 
+        double* quad_1d_point,
         double* quad_1d_weight) {
 
     double* q = quad_1d_point;
@@ -212,18 +204,18 @@ inline void legendre(
 // quad_ is really a terrible function name.
 // 0,100,N, kappa, theta,sigma,rho,v0,r,T,s0,K,type
 inline double quad_(
-        double a, 
-        double b, 
+        double a,
+        double b,
         int N, 
-        double kappa, 
+        double kappa,
         double theta,
-        double sigma, 
-        double rho, 
-        double v0, 
-        double r, 
+        double sigma,
+        double rho,
+        double v0,
+        double r,
         double T,
-        double s0, 
-        double K, 
+        double s0,
+        double K,
         int type) {
 
     double c,h;
@@ -283,15 +275,15 @@ inline double quad_(
 }
 
 inline double HestonP(
-        double kappa, 
-        double theta, 
-        double sigma, 
+        double kappa,
+        double theta,
+        double sigma,
         double rho,
-        double v0, 
-        double r, 
-        double T, 
-        double s0, 
-        double K, 
+        double v0,
+        double r,
+        double T,
+        double s0,
+        double K,
         int type, 
         int N) {
 
@@ -311,7 +303,7 @@ double HestonCallQuadCPU(
         double rho,
         double v0,
         double r,
-        double T, 
+        double T,
         double s0,
         double K,
         int N) {
