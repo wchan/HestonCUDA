@@ -15,6 +15,7 @@
 #include <thrust/device_vector.h>
 #include <thrust/transform.h>
 #include <thrust/sequence.h>
+#include <thrust/fill.h>
 
 struct HestonCallQuadGPU_functor {
 	HestonCUDAPrecision dKappa;
@@ -53,7 +54,8 @@ struct HestonCallQuadGPU_functor {
 
 
 
-inline HestonCUDAPrecisionComplex Hestf(
+__host__ __device__ inline
+HestonCUDAPrecisionComplex Hestf(
         HestonCUDAPrecision phi, 
         HestonCUDAPrecision kappa, 
         HestonCUDAPrecision theta, 
@@ -94,7 +96,7 @@ inline HestonCUDAPrecisionComplex Hestf(
 }
 
 
-inline HestonCUDAPrecision hestonPIntegrand(
+__host__ inline HestonCUDAPrecision hestonPIntegrand(
         HestonCUDAPrecision phi, 
         HestonCUDAPrecision kappa,
         HestonCUDAPrecision theta,
@@ -117,17 +119,14 @@ inline HestonCUDAPrecision hestonPIntegrand(
 
 }
 
-inline void legendre(
+__host__ inline void legendre(
         int ind, 
-        HestonCUDAPrecision* quad_1d_point, 
-        HestonCUDAPrecision* quad_1d_weight) {
-
-    HestonCUDAPrecision* q = quad_1d_point;
-    HestonCUDAPrecision* w = quad_1d_weight;
+        HestonCUDAPrecision* q,
+        HestonCUDAPrecision* w) {
 
     if (ind == 1) {
-        *quad_1d_point = 0;
-        *quad_1d_weight = 2;
+        q[0] = 0;
+        w[0] = 2;
     }
     else if (ind == 2) {
         //*quad_1d_point = {-1.0/sqrt(3.0), 1.0/sqrt(3.0)};
@@ -139,12 +138,12 @@ inline void legendre(
     }
     else if (ind == 3) {
         //*quad_1d_point = {-sqrt(3.0/5.0), 0, sqrt(3.0/5.0)};
-        q[0] = -sqrt(3.0/5.0); 
-        q[1] = 0; 
+        q[0] = -sqrt(3.0/5.0);
+        q[1] = 0;
         q[2] = sqrt(3.0/5.0);
         //*quad_1d_weight = {5.0/9.0, 8.0/9.0, 5.0/9.0};
-        w[0]= 5.0/9.0; 
-        w[1]= 8.0/9.0; 
+        w[0]= 5.0/9.0;
+        w[1]= 8.0/9.0;
         w[2]= 5.0/9.0;
     }
     else if (ind == 4) {
@@ -154,9 +153,9 @@ inline void legendre(
         w1 = (18.0-sqrt(30.0))/36.0;
         w2 = (18.0+sqrt(30.0))/36.0;
         //*quad_1d_point = {-a, -b, b, a};
-        q[0] = -a; 
-        q[1] = -b; 
-        q[2] = b; 
+        q[0] = -a;
+        q[1] = -b;
+        q[2] = b;
         q[3] = a;
         //*quad_1d_weight = {w1, w2, w2, w1};
         w[0] = w1;
@@ -171,16 +170,16 @@ inline void legendre(
         w1 = (322.0-13.0*sqrt(70.0))/900.0;
         w2 = (322.0+13.0*sqrt(70.0))/900.0;
         //*quad_1d_point = {-a, -b, 0, b, a};
-        q[0] = -a; 
-        q[1] = -b; 
-        q[2] = 0; 
-        q[3] = b; 
+        q[0] = -a;
+        q[1] = -b;
+        q[2] = 0;
+        q[3] = b;
         q[4] = a;
         //*quad_1d_weight = {w1, w2, 128.0/225.0, w2, w1};
-        w[0] = w1; 
+        w[0] = w1;
         w[1] = w2;
-        w[2] = 128.0/225.0; 
-        w[3] = w2; 
+        w[2] = 128.0/225.0;
+        w[3] = w2;
         w[4] = w1;
     }
     else if (ind == 16) {
@@ -207,38 +206,38 @@ inline void legendre(
         //*quad_1d_weight = {w8, w7, w6, w5, w4, w3, w2, 
         //    w1, w1, w2, w3, w4, w5, w6, w7, w8};
 
-        q[0] = -a8; 
-        q[1] = -a7; 
-        q[2] = -a6; 
-        q[3] = -a5; 
-        q[4] = -a4; 
-        q[5] = -a3; 
-        q[6] = -a2; 
-        q[7] = -a1; 
+        q[0] = -a8;
+        q[1] = -a7;
+        q[2] = -a6;
+        q[3] = -a5;
+        q[4] = -a4;
+        q[5] = -a3;
+        q[6] = -a2;
+        q[7] = -a1;
         q[8] = a1;
-        q[9] = a2; 
-        q[10] = a3; 
-        q[11] = a4; 
-        q[12] = a5; 
-        q[13] = a6; 
-        q[14] = a7; 
+        q[9] = a2;
+        q[10] = a3;
+        q[11] = a4;
+        q[12] = a5;
+        q[13] = a6;
+        q[14] = a7;
         q[15] = a8;
 
-        w[0] = w8; 
-        w[1] = w7; 
-        w[2] = w6; 
-        w[3] = w5; 
-        w[4] = w4; 
-        w[5] = w3; 
-        w[6] = w2; 
-        w[7] = w1; 
-        w[8] = w1; 
-        w[9] = w2; 
-        w[10] = w3; 
-        w[11] = w4; 
-        w[12] = w5; 
-        w[13] = w6; 
-        w[14] = w7; 
+        w[0] = w8;
+        w[1] = w7;
+        w[2] = w6;
+        w[3] = w5;
+        w[4] = w4;
+        w[5] = w3;
+        w[6] = w2;
+        w[7] = w1;
+        w[8] = w1;
+        w[9] = w2;
+        w[10] = w3;
+        w[11] = w4;
+        w[12] = w5;
+        w[13] = w6;
+        w[14] = w7;
         w[15] = w8;
 
 
@@ -250,7 +249,7 @@ inline void legendre(
     }
 }
 
-inline HestonCUDAPrecision quad_(
+__host__ inline HestonCUDAPrecision quad_(
         HestonCUDAPrecision a, 
         HestonCUDAPrecision b, 
         long N, 
@@ -270,21 +269,34 @@ inline HestonCUDAPrecision quad_(
     h = (b - a)/2.0;
 
 	//TODO: major optimizations here w/ these unnecessary arrays.
-    HestonCUDAPrecision* x = new HestonCUDAPrecision[N];
-    HestonCUDAPrecision* w = new HestonCUDAPrecision[N];
+
 
     h=(b-a)/(N-1);
 
     const int p=2; // fixed in quad_
-    HestonCUDAPrecision* quad = new HestonCUDAPrecision[p];
+
+
     HestonCUDAPrecision* w_ = new HestonCUDAPrecision[p];
+    HestonCUDAPrecision* quad = new HestonCUDAPrecision[p];
+
+    legendre(p, quad, w_);
+
+    thrust::host_vector<HestonCUDAPrecision> dev_quad(&quad[0], &quad[p]);
+    thrust::host_vector<HestonCUDAPrecision> dev_w(&w_[0], &w_[p]);
+    thrust::host_vector<HestonCUDAPrecision> x(N);
+    thrust::host_vector<HestonCUDAPrecision> w(N);
+
+    //thrust::device_vector<HestonCUDAPrecision> dev_quad = std::vector.assign(p,quad);
+    //thrust::device_vector<HestonCUDAPrecision> dev_w = std::vector.assign(p,w_);
+
+//    thrust::fill(x.begin(), x.end(), 2);
+//    thrust::sequence(w.begin(), w.end());
 
     for (int i=0; i<N/2; i++) {
-        legendre(p, quad, w_);
-        int k = 0;
+        //int k = 0;
         for (int j=p*i; j<p*(i+1); j++) {
-            x[j] = a+h*((2*i+1)+quad[k]);
-            w[j] = w_[k++];
+            x[j] = a+h*((2*i+1)+quad[j%p]);
+            w[j] = w_[j%p];
         }
 
     }
@@ -303,13 +315,13 @@ inline HestonCUDAPrecision quad_(
     Q *= h;
     delete[] quad;
     delete[] w_;
-    delete[] x;
-    delete[] w;
+//    delete[] x;
+//    delete[] w;
     //delete[] y;
     return Q;
 }
 
-inline HestonCUDAPrecision HestonP(
+__host__ inline HestonCUDAPrecision HestonP(
         HestonCUDAPrecision kappa, 
         HestonCUDAPrecision theta, 
         HestonCUDAPrecision sigma, 
@@ -327,7 +339,7 @@ inline HestonCUDAPrecision HestonP(
         quad_(0,100,N, kappa, theta,sigma,rho,v0,r,T,s0,K,type);
 }
 
-HestonCUDAPrecision HestonCallQuadGPU(
+__host__ HestonCUDAPrecision HestonCallQuadGPU(
 		HestonCUDAPrecision kappa,   // rate of reversion
 		HestonCUDAPrecision theta,   // int run variance
 		HestonCUDAPrecision sigma,   // vol of vol

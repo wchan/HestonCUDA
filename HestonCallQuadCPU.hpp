@@ -34,7 +34,7 @@ __inline__ double HestonCallQuadCPUBenchmark(
   for (int i = BENCHMARK_RUNS - 1; i >= 0; i--) HestonCallQuadCPU(dKappa, dTheta, dSigma, dV0, dRho, dR, dT, dS0, dStrike, lN);
   clock_t end   = clock();
 
-  std::cout << "CPU Runtime Quad(" << BENCHMARK_RUNS << "): " << (double)(end - start) / CLOCKS_PER_SEC << "s" << std::endl;
+  std::cout << "CPU Runtime quad(" << BENCHMARK_RUNS << "): " << (double)(end - start) / CLOCKS_PER_SEC << "s" << std::endl;
 
   return result;
 }

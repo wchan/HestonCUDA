@@ -1,7 +1,7 @@
 #ifndef __HESTONCUDAPRECISION_HPP__
 #define __HESTONCUDAPRECISION_HPP__
 
-#define HestonCUDAPrecisionFloat
+#define HestonCUDAPrecisionDouble
 #if defined HestonCUDAPrecisionFloat
 	#define HestonCUDAPrecision float
 	#define HestonCUDAPrecisionComplex cuFloatComplex
@@ -12,7 +12,7 @@
 	#error Please Specify HestonCUDAPrecision
 #endif
 
-#define BENCHMARK_RUNS 256
+#define BENCHMARK_RUNS 1
 
 #endif
 
