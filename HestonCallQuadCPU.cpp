@@ -1,12 +1,12 @@
+//include "HestonCUDAPrecision"
+//TODO: refactor double to HestonCUDAPrecision
+// benchmark.m takes 151 seconds for me
 #include "HestonCallQuadCPU.hpp"
 #include <complex>
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include <iostream>
 #define pi 3.1415926535897932384626433832795
-//include "HestonCUDAPrecision"
-//TODO: refactor double to HestonCUDAPrecision
-// benchmark.m takes 151 seconds for me
 
 inline std::complex<double> Hestf(
         double phi,

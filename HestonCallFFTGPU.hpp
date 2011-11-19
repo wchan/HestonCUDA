@@ -34,7 +34,7 @@ __inline__ HestonCUDAPrecision HestonCallFFTGPUBenchmark(
   for (int i = BENCHMARK_RUNS - 1; i >= 0; i--) HestonCallFFTGPU(dKappa, dTheta, dSigma, dV0, dRho, dR, dT, dS0, dStrike, lN);
   clock_t end   = clock();
 
-  std::cout << "GPU Runtime (" << BENCHMARK_RUNS << "): " << (HestonCUDAPrecision)(end - start) / CLOCKS_PER_SEC << "s" << std::endl;
+  std::cout << "GPU Runtime FFT(" << BENCHMARK_RUNS << "): " << (HestonCUDAPrecision)(end - start) / CLOCKS_PER_SEC << "s" << std::endl;
 
   return result;
 }

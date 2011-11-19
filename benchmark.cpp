@@ -11,6 +11,12 @@
 void hestonTests() {
     double tol = 1e-6;
 
+	#if defined HestonCUDAPrecisionFloat
+		std::cout << "Precision: float" << std::endl;
+	#elif defined HestonCUDAPrecisionDouble
+		std::cout << "Precision: double" << std::endl;
+	#endif
+
     double fft_price_cpu_1 = HestonCallFFTCPUBenchmark(2,0.04,0.1,0.5,0.04,0.01,0.3,1.0,0.8,4096);
     double fft_price_cpu_2 = HestonCallFFTCPUBenchmark(2,0.04,0.1,0.5,0.04,0.01,1.0,1.0,1.0,4096);
     HestonCUDAPrecision fft_price_gpu_1 = HestonCallFFTGPUBenchmark(2,0.04,0.1,0.5,0.04,0.01,0.3,1.0,0.8,4096);

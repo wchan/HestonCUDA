@@ -1,5 +1,4 @@
 #include "HestonCallQuadGPU.hpp"
-
 #include <complex>
 #define _USE_MATH_DEFINES
 #include <cmath>
