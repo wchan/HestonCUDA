@@ -37,12 +37,15 @@ inline std::complex<double> Hestf(
     a = kappa*theta;
     x = log(s0);
     d = sqrt(pow(rho*sigma*phi*zI-b,2)-(sigma*sigma)*(2*u*phi*zI-(phi*phi)));
+
     g = (b-rho*sigma*phi*zI + d)/(b-rho*sigma*phi*zI - d);
     C = r*phi*zI*T + a/(sigma*sigma)*((b- rho*sigma*phi*zI + d)*T 
             - 2.0*log((1.0-g*exp(d*T))/(1.0-g)));
+    //std::cout << C << std::endl;
     D = (b-rho*sigma*phi*zI + d)/(sigma*sigma)*((1.0-exp(d*T))/ (1.0-g*exp(d*T)));
 
     f = exp(C + D*v0 + zI*phi*x);
+    //std::cout << f << std::endl;
     return f;
 }
 
@@ -260,6 +263,11 @@ inline double quad_(
         y[i] = hestonPIntegrand(x[i], kappa, theta, 
                 sigma, rho, v0, r, T, s0, K, type);
         //Q[i] = h*y[i]*w[i];
+//        std::cout<<x[i]<<" " << kappa << " " << theta
+//        					<< " " << sigma << " " << rho <<" "
+//        				<< v0 << " " << r << " " << T << " "
+//        					<< s0 << " " << K << " " << type
+//        					<< " " << y[i] << std::endl;
         Q += y[i]*w[i];
     }
     Q *= h;

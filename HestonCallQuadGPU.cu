@@ -107,12 +107,20 @@ struct HestonCallQuadGPU_functor1 {
 					dV0(dV0), dR(dR), dT(dT), dS0(dS0), dStrike(dStrike), p(p),
 					a(a), h(h), type(type) {}
 
-		__host__ __device__
+		__host__ //__device__
 		HestonCUDAPrecision operator()(const HestonCUDAPrecision& x, const HestonCUDAPrecision& w) {
 			HestonCUDAPrecision y,Q;
 			y = HestonP_GPUIntegrand(x, dKappa, dTheta,
 					dSigma, dRho, dV0, dR, dT, dS0, dStrike, type);
+
+//			std::cout<<x<<" " << dKappa << " " << dTheta
+//					<< " " << dSigma << " " << dRho <<" "
+//				<< dV0 << " " << dR << " " << dT << " "
+//					<< dS0 << " " << dStrike << " " << type <<
+//					y << std::endl;
+
 			Q = y*w;
+			//std::cout << "x: " << x << "\ty: " << y << std::endl;
 			return Q;
 		}
 
@@ -147,12 +155,17 @@ struct HestonCallQuadGPU_functor1 {
 		a = kappa*theta;
 	    x = log(s0);
 	    d = sqrt(pow(rho*sigma*phi*zI-b,2)-(sigma*sigma)*(2*u*phi*zI-(phi*phi)));
+
 	    g = (b-rho*sigma*phi*zI + d)/(b-rho*sigma*phi*zI - d);
 	    C = r*phi*zI*T + a/(sigma*sigma)*((b- rho*sigma*phi*zI + d)*T
 	            - 2.0*log((1.0-g*exp(d*T))/(1.0-g)));
+
 	    D = (b-rho*sigma*phi*zI + d)/(sigma*sigma)*((1.0-exp(d*T))/ (1.0-g*exp(d*T)));
+	    //std::cout << D.x << " " << D.y << std::endl;
 
 	    f = exp(C + D*v0 + zI*phi*x);
+
+	    //std::cout << (C + D*v0 + zI*phi*x).x << " " << (C + D*v0 + zI*phi*x).y << std::endl;
 
 	    return f;
 	}

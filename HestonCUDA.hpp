@@ -73,7 +73,7 @@ __host__ __device__ static __inline__ HestonCUDAPrecisionComplex mul(HestonCUDAP
 }
 
 __host__ __device__ static __inline__ HestonCUDAPrecisionComplex sub(HestonCUDAPrecisionComplex s, HestonCUDAPrecision c) {
-  return sub(c,s);
+  return make_complex(s.x - c, s.y);
 }
 
 __host__ __device__ static __inline__ HestonCUDAPrecisionComplex add(HestonCUDAPrecisionComplex s, HestonCUDAPrecision c) {
@@ -151,13 +151,21 @@ __host__ __device__ static __inline__ HestonCUDAPrecisionComplex sqrt(HestonCUDA
   HestonCUDAPrecision f = sqrt(mag(c));
   HestonCUDAPrecision hp = 0.5 * phase(c);
   
-  return make_complex(f * cos(hp), f * sin(hp));
+  return make_complex(f * cos(hp),f * sin(hp));
 }
 
 __host__ __device__ static __inline__ HestonCUDAPrecisionComplex exp(HestonCUDAPrecisionComplex c) {
-  HestonCUDAPrecision f = exp(c.x);
+//  HestonCUDAPrecision f = exp(c.x);
+//
+//  return make_complex(f * cos(c.y), f * sin(c.y));
 
-  return make_complex(f * cos(c.y), f * sin(c.y));
+	HestonCUDAPrecisionComplex res;
+	HestonCUDAPrecision t = exp (c.x);
+	sincos (c.y, &res.y, &res.x);
+	res.x *= t;
+	res.y *= t;
+	return res;
+
 }
 
 __host__ __device__ static __inline__ HestonCUDAPrecisionComplex log(HestonCUDAPrecisionComplex c) {
