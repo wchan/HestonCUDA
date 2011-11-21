@@ -260,7 +260,6 @@ inline double quad_(
         y[i] = hestonPIntegrand(x[i], kappa, theta, 
                 sigma, rho, v0, r, T, s0, K, type);
         //Q[i] = h*y[i]*w[i];
-
         Q += y[i]*w[i];
     }
     Q *= h;

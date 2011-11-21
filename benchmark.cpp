@@ -9,8 +9,6 @@
 
 
 void hestonTests() {
-    double tol = 1e-6;
-
 	#if defined HestonCUDAPrecisionFloat
 		std::cout << "Precision: float" << std::endl;
 	#elif defined HestonCUDAPrecisionDouble
@@ -52,8 +50,8 @@ void hestonTests() {
     double quad_vol_matlab_1 = 0.189204924511565;
     double quad_vol_matlab_2 = 0.191296007291189;
     
-    HestonCUDAPrecision quad_price_gpu_1 = HestonCallQuadGPUBenchmark(2,.04,.1,0.5,.04,.01,.3,1,.8,4096);
-    HestonCUDAPrecision quad_price_gpu_2 = HestonCallQuadGPUBenchmark(2,.04,.1,0.5,.04,.01,.3,1,.84,4096);
+    HestonCUDAPrecision quad_price_gpu_1 = HestonCallQuadGPU(2,.04,.1,0.5,.04,.01,.3,1,.8,4096);
+    HestonCUDAPrecision quad_price_gpu_2 = HestonCallQuadGPU(2,.04,.1,0.5,.04,.01,.3,1,.84,4096);
     
 	std::cout << "-- quad price --" << std::endl;
     std::cout << "1\t" << quad_price_cpu_1 << "\t" << quad_price_matlab_1 << "\t" << quad_price_gpu_1 << std::endl;
