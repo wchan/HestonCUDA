@@ -107,7 +107,7 @@ struct HestonCallQuadGPU_functor1 {
 					dV0(dV0), dR(dR), dT(dT), dS0(dS0), dStrike(dStrike), p(p),
 					a(a), h(h), type(type) {}
 
-		__host__ //__device__
+		__host__ __device__
 		HestonCUDAPrecision operator()(const HestonCUDAPrecision& x, const HestonCUDAPrecision& w) {
 			HestonCUDAPrecision y,Q;
 			y = HestonP_GPUIntegrand(x, dKappa, dTheta,
@@ -354,19 +354,19 @@ __host__ inline HestonCUDAPrecision quad_GPU(
 
     legendre_GPU(p, quad, w_);
 
-    thrust::host_vector<HestonCUDAPrecision> dev_quad(&quad[0], &quad[p]);
-    thrust::host_vector<HestonCUDAPrecision> dev_w(&w_[0], &w_[p]);
+    thrust::device_vector<HestonCUDAPrecision> dev_quad(&quad[0], &quad[p]);
+    thrust::device_vector<HestonCUDAPrecision> dev_w(&w_[0], &w_[p]);
 
     // TODO: using int not long...
     thrust::counting_iterator<int> counter(0);
     thrust::counting_iterator<int> counter_last = counter+N;
     thrust::constant_iterator<int> p_it(p);
 
-    thrust::host_vector<int> indicies(N);
+    thrust::device_vector<int> indicies(N);
     thrust::transform(counter, counter_last, p_it, indicies.begin(), thrust::modulus<int>());
 
-    thrust::host_vector<HestonCUDAPrecision> dev_full_quad(N);
-    thrust::host_vector<HestonCUDAPrecision> dev_full_w(N);
+    thrust::device_vector<HestonCUDAPrecision> dev_full_quad(N);
+    thrust::device_vector<HestonCUDAPrecision> dev_full_w(N);
 
 
 
@@ -386,7 +386,7 @@ __host__ inline HestonCUDAPrecision quad_GPU(
 //    thrust::copy(dev_full_w.begin(),dev_full_w.end(),std::ostream_iterator<double>(std::cout," "));
 //    thrust::copy(dev_w.begin(),dev_w.end(),std::ostream_iterator<double>(std::cout,"\n\n"));
 
-    thrust::host_vector<HestonCUDAPrecision> dev_Q(N);
+    thrust::device_vector<HestonCUDAPrecision> dev_Q(N);
     HestonCallQuadGPU_functor1 func1(kappa,theta,sigma,rho,v0,r,T,s0,K,p,a,h,type); // calculates x
     HestonCallQuadGPU_functor2 func2(kappa,theta,sigma,rho,v0,r,T,s0,K,p,a,h,type); // calculates Q
 
@@ -411,6 +411,13 @@ __host__ inline HestonCUDAPrecision quad_GPU(
 //		Q += y*w;
 //    }
     Q *= h;
+
+//    free(dev_full_w);
+//	free(dev_full_quad);
+//	free(dev_quad);
+//	free(dev_w);
+//	free(indicies);
+//	free(dev_Q);
     delete[] quad;
     delete[] w_;
 //    delete[] x;

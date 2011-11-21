@@ -12,7 +12,7 @@
 	#error Please Specify HestonCUDAPrecision
 #endif
 
-#define BENCHMARK_RUNS 1
+#define BENCHMARK_RUNS 256
 
 #endif
 
