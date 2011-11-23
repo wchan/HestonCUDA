@@ -23,12 +23,12 @@
 #include <thrust/iterator/constant_iterator.h>
 #include <thrust/iterator/permutation_iterator.h>
 
-struct ModPfunc {
+struct ModPfunc  : public thrust::unary_function<int,int>{
     const int p;
     ModPfunc(int p) :p(p) {}
     
     __host__ __device__
-    int operator()(const int& i) const {
+    int operator()(const int i) const {
         return i%p;
     }
 };
@@ -361,8 +361,7 @@ __host__ inline HestonCUDAPrecision quad_GPU(
                 dev_quad.begin(),
                 thrust::make_transform_iterator(
                     counter,
-                    modP()
-                )
+                    modP                )
             ), 
             dev_Q.begin(), 
             func1
@@ -375,8 +374,8 @@ __host__ inline HestonCUDAPrecision quad_GPU(
                 dev_w.begin(),
                 thrust::make_transform_iterator(
                     counter,
-                    modP()
-                )
+                    modP
+				)
             ),
             dev_Q.begin(), 
             func2
