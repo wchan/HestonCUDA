@@ -67,7 +67,7 @@ void genFigureData() {
 	std::ofstream outfile;
 	outfile.open("heston.tab");
 	//freopen ("heston.dat","w",stdout);
-	outfile << "N\tCPU_FFT\tCPU_QUAD\tGPU_FFT\tGPU_QUAD" << std::endl;
+	outfile << "N\tCPU_QUAD\tGPU_QUAD\tCPU_FFT\tGPU_FFT" << std::endl;
 	outfile.precision(12);
 	//outfile.setf(std::ios::fixed);
 	//outfile.setf(std::ios::showpoint);
