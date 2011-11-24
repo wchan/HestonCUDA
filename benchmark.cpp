@@ -1,4 +1,6 @@
 #include <iostream>
+#include <ctime>
+#include <fstream>
 #include "BlackScholes.hpp"
 #include "HestonCUDA.hpp"
 #include "HestonCUDAPrecision.hpp"
@@ -6,7 +8,6 @@
 #include "HestonCallFFTGPU.hpp"
 #include "HestonCallQuadCPU.hpp"
 #include "HestonCallQuadGPU.hpp"
-
 
 void hestonTests() {
 	#if defined HestonCUDAPrecisionFloat
@@ -62,8 +63,50 @@ void hestonTests() {
 
 }
 
+void genFigureData() {
+	std::ofstream outfile;
+	outfile.open("heston.tab");
+	//freopen ("heston.dat","w",stdout);
+	outfile << "N\tCPU_FFT\tCPU_QUAD\tGPU_FFT\tGPU_QUAD" << std::endl;
+	outfile.precision(12);
+	//outfile.setf(std::ios::fixed);
+	//outfile.setf(std::ios::showpoint);
+	for (int i=8; i<=1048576; i*=2) {
+		outfile << i << "\t";
+
+		std::clock_t start = std::clock();
+		HestonCallQuadCPUBenchmark(2,.04,.1,0.5,.04,.01,.3,1,.8,i);
+		std::clock_t end = std::clock();
+		double time =  (end-start)/(double)CLOCKS_PER_SEC;
+
+		outfile << time << "\t";
+
+		start = std::clock();
+		HestonCallQuadGPUBenchmark(2,.04,.1,0.5,.04,.01,.3,1,.8,i);
+		end   = std::clock();
+		time = double (end-start)/CLOCKS_PER_SEC;
+		outfile << time << "\t";
+		
+		start = std::clock();
+		HestonCallFFTCPUBenchmark(2,0.04,0.1,0.5,0.04,0.01,0.3,1.0,0.8,i);
+		end   = std::clock();
+		time = double (end-start)/CLOCKS_PER_SEC;
+		outfile << time << "\t";
+		
+		start = std::clock();
+		HestonCallFFTGPUBenchmark(2,0.04,0.1,0.5,0.04,0.01,0.3,1.0,0.8,i);
+		end   = std::clock();
+		time = double (end-start)/CLOCKS_PER_SEC;
+		outfile << time;
+		outfile << std::endl;
+	}
+	outfile.close();
+	//std::fclose (stdout);
+}
+
 int main(int args, char* argv[]) {
     std::cout.precision(16);
     hestonTests();
+	genFigureData();
 }
 
