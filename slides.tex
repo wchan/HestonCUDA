@@ -45,7 +45,7 @@ Goal: Speedup the Heston pricing model calculations with GPUs!
 \begin{enumerate}
 \item Quadrature
 \item Fast Fourier Transform
-\item Monte Carlo
+\item Monte Carlo (used for exotic derivatives)
 \end{enumerate}
 \vfill
 We will focus on Quadrature and FFT.
@@ -66,17 +66,18 @@ CUDA is a pain to deal with... (block size, threads, warps, shared memory, etc..
 \item CPU: Intel Core 2 Quad Q8300 2.5 GHz
 \item GPU: NVIDIA GTX 460 1 GiB
 \item RAM: 4 GiB
+\item Pricing Instrument: Vanilla Call Options
 \end{itemize}
 \end{frame}
 
 \begin{frame}[t]{Numerical Stability}
 Fast software is meaningless if it is not accurate!
-
+Quadrature is generally the more accurate approach but slower than FFT.
 \begin{table}
 \centering
 \begin{tabular}{|l|l|}
 \hline
-\bfseries Software & \bfseries Result \\
+\bfseries Method & \bfseries Result \\
 \hline\hline
 Matlab Quadrature Reference  & 0.202871648173905 \\
 Matlab FFT Reference         & 0.203756595588233 \\
@@ -96,16 +97,33 @@ GPUs are numerically stable relative to CPUs-- bigger problem between Quadrature
 \end{frame}
 
 \begin{frame}[t]{Quadrature Speedup}
-
+\begin{center}
+\includegraphics[width=0.5\textwidth]{quad_speedup}
+\end{center}
 \end{frame}
 
 \begin{frame}[t]{FFT Speedup}
+\begin{center}
+\includegraphics[width=0.5\textwidth]{fft_speedup}
+\end{center}
+For small values of N: FFT is actually limited by workload-- not enough work to feed all the CUDA cores!
+\end{frame}
 
-FFT is actually limited by workload-- not enough work to feed all the CUDA cores!
+\begin{frame}[t]{Quadrature vs. FFT}
+\begin{center}
+\includegraphics[width=0.5\textwidth]{quad_vs_fft}
+\end{center}
+For large values of N: GPU Quadrature actually beats GPU FFT!
 \end{frame}
 
 \begin{frame}[t]{Conclusion}
-
+\begin{enumerate}
+\item Numerically accurate and stable compared to CPU
+\item $>$50x Speedup using Quadrature Heston model
+\item HestonCUDA allows Quadrature Heston model pricing $\Rightarrow$ accuracy and speed!
+\end{enumerate}
+\vfill
+We have also open sourced our project! \url{https://github.com/wchan/HestonCUDA}
 \end{frame}
 
 
