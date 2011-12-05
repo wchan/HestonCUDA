@@ -1,0 +1,113 @@
+\documentclass{beamer}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{hyperref}
+
+\usetheme{Szeged}
+\usecolortheme{beaver}
+\setbeamertemplate{navigation symbols}{}
+
+\title[Carnegie Mellon University]{HestonCUDA}
+%\subtitle{Neuromorphic Computing}
+\author{William Chan, Irina Brinster, Erik Reed,\\Jike Chong, and Matthew Dixon}
+\institute[\insertframenumber]{
+  Carnegie Mellon University\\
+  NASA AMES Research Park\\
+  Moffett Field, California 94305\\
+  \texttt{williamchan@cmu.edu}
+}
+\date{\today}
+
+\begin{document}
+
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+\begin{frame}[t]{Introduction - Problem Background}
+We want to price financial options/derivatives:
+\begin{itemize}
+\item Traditionally we use Black-Scholes Model
+\item Assumes Constant Volatility $\Rightarrow$ not accurate $\Rightarrow$ bad pricing $\Rightarrow$ bad profits
+\end{itemize}
+We want to use the Heston Model:
+\begin{itemize}
+\item Stochastic Volatility $\Rightarrow$ more accurate pricing $\Rightarrow$ profits
+\item Complex calculations $\Rightarrow$ slow $\Rightarrow$ bad profits
+\end{itemize}
+\vfill
+Goal: Speedup the Heston pricing model calculations with GPUs!
+\end{frame}
+
+\begin{frame}[t]{FFT or Quadrature}
+3 Methods of computation available:
+\begin{enumerate}
+\item Quadrature
+\item Fast Fourier Transform
+\item Monte Carlo
+\end{enumerate}
+\vfill
+We will focus on Quadrature and FFT.
+It turns out these two methods are \textit{embarassingly} parallelizable!
+\end{frame}
+
+\begin{frame}[t]{CUDA but not CUDA -- Thrust!}
+CUDA is a pain to deal with... (block size, threads, warps, shared memory, etc...)
+\begin{itemize}
+\item Solution: NVIDIA Thrust! \url{http://developer.nvidia.com/Thrust}
+\item Write C++ style kernel functions w/o a need to deal with the CUDA messiness with most of the goodies of CUDA speedups!
+\item Tradeoff some performance for fast prototyping
+\end{itemize}
+\end{frame}
+
+\begin{frame}[t]{Experimental Setup}
+\begin{itemize}
+\item CPU: Intel Core 2 Quad Q8300 2.5 GHz
+\item GPU: NVIDIA GTX 460 1 GiB
+\item RAM: 4 GiB
+\end{itemize}
+\end{frame}
+
+\begin{frame}[t]{Numerical Stability}
+Fast software is meaningless if it is not accurate!
+
+\begin{table}
+\centering
+\begin{tabular}{|l|l|}
+\hline
+\bfseries Software & \bfseries Result \\
+\hline\hline
+Matlab Quadrature Reference  & 0.202871648173905 \\
+Matlab FFT Reference         & 0.203756595588233 \\
+\hline
+\hline
+CPU Quadrature     & 0.20287164817390\textbf{45} \\
+GPU Quadrature     & 0.20287164817390\textbf{50} \\
+\hline
+\hline
+CPU FFT            & 0.203756595588233\textbf{4} \\
+GPU FFT            & 0.203756595588233\textbf{3} \\
+\hline
+\end{tabular}
+\end{table}
+\vfill
+GPUs are numerically stable relative to CPUs-- bigger problem between Quadrature and FFT computation methods.
+\end{frame}
+
+\begin{frame}[t]{Quadrature Speedup}
+
+\end{frame}
+
+\begin{frame}[t]{FFT Speedup}
+
+FFT is actually limited by workload-- not enough work to feed all the CUDA cores!
+\end{frame}
+
+\begin{frame}[t]{Conclusion}
+
+\end{frame}
+
+
+\end{document}
+
